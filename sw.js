@@ -37,7 +37,8 @@ self.addEventListener('activate', (e) => {
 
 self.addEventListener('fetch', (e) => {
     e.respondWith((async () => {
-        // if(Testing) return fetch(e.request);
+        // if(Testing)
+            return fetch(e.request);
         console.log(`[Service Worker] Fetching requested resource: ${e.request.url}`);
         const r = await caches.match(e.request);
         if(e.request.cache != "reload" && r) return r;
