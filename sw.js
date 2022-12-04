@@ -15,7 +15,12 @@ self.addEventListener('install', (e) => {
     e.waitUntil((async () => {
         const cache = await caches.open(cacheName);
         console.log('[Service Worker] Caching app shell');
-        await cache.addAll(appShellFiles);
+        try{
+            await cache.addAll(appShellFiles);
+        } catch(err){
+            console.log("App failed to cache!");
+            console.error(err);
+        }
     })());
 });
 
@@ -38,7 +43,7 @@ self.addEventListener('activate', (e) => {
 self.addEventListener('fetch', (e) => {
     e.respondWith((async () => {
         // if(Testing)
-            return fetch(e.request);
+            // return fetch(e.request);
         console.log(`[Service Worker] Fetching requested resource: ${e.request.url}`);
         const r = await caches.match(e.request);
         if(e.request.cache != "reload" && r) return r;
