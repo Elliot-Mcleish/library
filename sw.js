@@ -4,7 +4,6 @@ const cacheName = "HLPWA-v1.2";
 const Testing = self.location.host.split(":")[0] == "localhost";
 
 const appShellFiles = [
-    '/',
     '/index.html',
     '/app.js',
     '/styles.css',
