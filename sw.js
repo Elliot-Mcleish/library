@@ -1,5 +1,8 @@
 
-const cacheName = "HLPWA-v1.1";
+const cacheName = "HLPWA-v1.2";
+
+const Testing = self.location.host.split(":")[0] == "localhost";
+
 const appShellFiles = [
     '/',
     '/index.html',
@@ -35,7 +38,7 @@ self.addEventListener('activate', (e) => {
 
 self.addEventListener('fetch', (e) => {
     e.respondWith((async () => {
-        return fetch(e.request);
+        if(Testing) return fetch(e.request);
         console.log(`[Service Worker] Fetching requested resource: ${e.request.url}`);
         const r = await caches.match(e.request);
         if(e.request.cache != "reload" && r) return r;
