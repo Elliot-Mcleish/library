@@ -1,0 +1,3 @@
+
+Determine whether or not we need a "series" field for books
+Create list of all possible subjects

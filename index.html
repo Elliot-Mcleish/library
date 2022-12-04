@@ -11,7 +11,53 @@
         <script src="app.js"></script>
     </head>
     <body>
+
         <h1>Homeschooler's Library Catalogue</h1>
-        <h2>Big Update Completed</h2>
+        <h2>Service Worker currently disabled</h2>
+        <form>
+            <div>
+                <label for="title">Title:</label>
+                <input name="title" id="title" type="text" required>
+            </div>
+            <div>
+                <label for="author">Author:</label>
+                <input name="author" id="author" type="text" required>
+            </div>
+            <fieldset>
+                <legend>Subject(s)</legend>
+                <div>
+                    <input type="radio" value="true" name="fictional" id="fiction" required>
+                    <label for="fiction">Fiction</label>
+                </div>
+                <div>
+                    <input type="radio" value="false" name="fictional" id="non-fiction" required>
+                    <label for="non-fiction">Non-fiction</label>
+                </div>
+                <div>
+                    <div>
+                        <input type="checkbox" value="sci-fi" name="subjects" id="sci-fi">
+                        <label for="sci-fi">Sci-fi</label>
+                    </div>
+                    <div>
+                        <input type="checkbox" value="fantasy" name="subjects" id="fantasy">
+                        <label for="fantasy">Fantasy</label>
+                    </div>
+                </div>
+            </fieldset>
+            <div>
+                <label for="copies"># of copies:</label>
+                <input name="copies" type="number" id="copies">
+            </div>
+            <input type="submit">
+            <script>
+                const Form = document.querySelector("form");
+                Form.addEventListener("submit", (e) => {
+                    e.preventDefault();
+                    console.log(e);
+                    let data = new FormData(Form);
+                    API("bookdata", data, {method: "POST"});
+                });
+            </script>
+        </form>
     </body>
 </html>

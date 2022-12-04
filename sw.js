@@ -1,5 +1,5 @@
 
-const cacheName = "MVPWA-v1.4.7";
+const cacheName = "HLPWA-v1.1";
 const appShellFiles = [
     '/',
     '/index.html',
@@ -35,15 +35,19 @@ self.addEventListener('activate', (e) => {
 
 self.addEventListener('fetch', (e) => {
     e.respondWith((async () => {
-        const r = await caches.match(e.request);
+        return fetch(e.request);
         console.log(`[Service Worker] Fetching requested resource: ${e.request.url}`);
-        if (r) {
-            return r;
+        const r = await caches.match(e.request);
+        if(e.request.cache != "reload" && r) return r;
+        try{
+            const response = await fetch(e.request);
+            const cache = await caches.open(cacheName);
+            console.log(`[Service Worker] Caching new resource: ${e.request.url}`);
+            cache.put(e.request, response.clone());
+            return response;
+        } catch(err) {
+            if(r) return r;
+            return await fetch(e.request);
         }
-        const response = await fetch(e.request);
-        const cache = await caches.open(cacheName);
-        console.log(`[Service Worker] Caching new resource: ${e.request.url}`);
-        cache.put(e.request, response.clone());
-        return response;
     })());
 });

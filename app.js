@@ -1,5 +1,3 @@
-
-
 //register service worker
 if('serviceWorker' in navigator){
     function ShowUpdatePrompt(registration){
@@ -51,11 +49,14 @@ if('serviceWorker' in navigator){
 }
 
 const API_URL = "http://elliotmcleish.wixsite.com/library/_functions/";
-function API(fname, searchParams=""){
-    let parsedSearchParams = new URLSearchParams(searchParams);
-    return fetch(`${API_URL}${fname}?${parsedSearchParams}`);
+function API(fname, searchParams="", options={}){
+    if(!fname) return fetch("404");
+    let fullUrlString = `${API_URL}${fname}`;
+    if(searchParams){
+        let parsedSearchParams = new URLSearchParams(searchParams);
+        fullUrlString = `${fullUrlString}?${parsedSearchParams}`;
+    }
+    return fetch(fullUrlString, options);
 }
 
-//Element Handles
-
-//initiate app
+// API("test", "", {cache: "reload"});
