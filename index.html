@@ -13,8 +13,12 @@
     <body>
 
         <h1>Homeschooler's Library Catalogue</h1>
-        <h2>Currently no protections implemented</h2>
-        <form>
+        <h2>Enter Information about the book:</h2>
+        <form class="book">
+            <div>
+                <input type="checkbox" value="false" name="store" id="store" checked>
+                <label for="store">For Testing (will prevent the book from being stored)</label>
+            </div>
             <div>
                 <label for="title">Title:</label>
                 <input name="title" id="title" type="text" required>
@@ -45,19 +49,73 @@
                 </div>
             </fieldset>
             <div>
-                <label for="copies"># of copies:</label>
-                <input name="copies" type="number" id="copies">
+                <label for="shelf">Shelf Name:</label>
+                <input name="shelf" type="text" id="shelf">
             </div>
+            <div>
+                <label for="seriesName">Series Name:</label>
+                <input name="seriesName" type="text" id="seriesName">
+            </div>
+            <div>
+                <label for="seriesNumber">Series Number:</label>
+                <input name="seriesNumber" type="number" id="seriesNumber">
+            </div>
+            <div>
+                <label for="copies">Number of copies:</label>
+                <input name="copies" type="number" id="copies" min="1">
+            </div>
+            <textarea name="details" placeholder="Extra Details:"></textarea>
             <input type="submit">
-            <script>
-                const Form = document.querySelector("form");
-                Form.addEventListener("submit", (e) => {
-                    e.preventDefault();
-                    console.log(e);
-                    let data = new FormData(Form);
-                    API("bookdata", data, {method: "POST"});
-                });
-            </script>
         </form>
+        <div id="logs" hidden></div>
+        <script>
+            const Logs = document.getElementById("logs");
+
+            var FormDataStorage = {};
+
+            let logId = 1;
+            function logBook(bookName, number){
+                console.log(typeof number, number);
+                Logs.removeAttribute("hidden");
+                let height = Logs.getBoundingClientRect().height;
+                let atBottom = (Logs.scrollHeight - height) <= (Logs.scrollTop + 10);
+                const log = document.createElement("div");
+                log.classList.add("log");
+                log.setAttribute("id", `logNo-${logId++}`);
+                const title = document.createElement("p");
+                title.classList.add("title");
+                const status = document.createElement("span");
+                status.classList.add("status");
+                title.textContent = bookName;
+                status.textContent = "Pending...";
+                if(number > 1){
+                    log.classList.add("multiple");
+                    title.setAttribute("number-of-books", number);
+                }
+                log.appendChild(title);
+                log.appendChild(status);
+                Logs.appendChild(log);
+                if(atBottom) Logs.scrollTo(0, Logs.scrollHeight);
+                return log;
+            }
+
+            const Form = document.querySelector("form");
+            Form.addEventListener("submit", (e) => {
+                e.preventDefault();
+                console.log(e);
+                let data = new FormData(Form);
+                data.append("password", window.localStorage.getItem("password"));
+                let log = logBook(data.get("title"), data.get("copies"));
+                let status = log.querySelector(".status");
+                FormDataStorage[log.id] = data;
+                API("bookdata", data, {method: "POST"}).then(response=>{
+                    status.innerText = "Complete!";
+                    status.classList.add("complete");
+                }).catch(err=>{
+                    status.innerText = err.message;
+                    status.classList.add("error");
+                });
+            });
+        </script>
     </body>
 </html>

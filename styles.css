@@ -1,0 +1,101 @@
+:root{
+    font-size:1.3rem;
+}
+
+body{
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+form.book{
+    width:25rem;
+}
+
+/* form div{
+    display:flex;
+}
+
+input[type='text'], input[type='number']{
+    flex:1;
+} */
+
+label, legend{
+    user-select: none;
+}
+
+div{
+    margin-block:10px;
+}
+
+input[type='text'], input[type='number'], input[type='submit']{
+    font-size:1rem;
+    float:right;
+}
+
+input[type='number']{
+    width:3rem;
+}
+
+input[type='radio'], input[type='checkbox']{
+
+}
+
+textarea{
+    font-size:1rem;
+}
+
+#logs{
+    position: absolute;
+    right: 1rem;
+    top: 2rem;
+    max-height:calc(100vh - 5rem);
+    overflow-y:scroll;
+    padding:1rem;
+    border:1px solid rgb(200,200,200);
+    /* box-shadow: -4px 0px 10px 0px rgb(100,100,100) inset; */
+}
+
+.log {
+    width:15rem;
+    border:1px solid rgb(100,100,100);
+    border-radius:1rem;
+    position:relative;
+    padding:1rem;
+    margin-block-end: 1rem;
+}
+
+.log .title{
+    width:10rem;
+    word-wrap: break-word;
+    overflow-wrap: anywhere;
+    margin:0px;
+    padding:0px;
+}
+
+.log .title::before{
+    content: '"';
+}
+
+.log .title::after{
+    content: '"';
+}
+
+.log.multiple .title::after{
+    content: '" (' attr(number-of-books) ')';
+}
+
+.log .status {
+    position:absolute;
+    right:1rem;
+    top:calc(50% - 0.5rem);
+    color:rgb(100,100,100);
+}
+
+.log .status.complete{
+    color:rgb(0,200,0);
+}
+
+.log .status.error{
+    color:red;
+}

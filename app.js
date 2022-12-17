@@ -59,4 +59,4 @@ function API(fname, searchParams="", options={}){
     return fetch(fullUrlString, options);
 }
 
-// API("test", "", {cache: "reload"});
+// API("auth", {"password":window.localStorage.getItem("password")}, {cache: "reload"}).then(console.log.bind(console));
