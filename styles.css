@@ -10,7 +10,14 @@ body{
 
 form.book{
     width:25rem;
+    position:relative;
 }
+
+/* input[type='submit']{
+    position:absolute;
+    left:calc(100% + 3px);
+    bottom:5px;
+} */
 
 /* form div{
     display:flex;
@@ -43,30 +50,31 @@ input[type='radio'], input[type='checkbox']{
 
 textarea{
     font-size:1rem;
+    width:calc(100% - 6px);
+    height:4rem;
+    resize:none;
 }
 
 #logs{
+    font-size:15px;
     position: absolute;
-    right: 1rem;
-    top: 2rem;
-    max-height:calc(100vh - 5rem);
+    left: max(calc(50vw + 12.5rem + 10px), calc(100vw - 15em - 35px));
+    top: 0px;
+    max-height:calc(100vh - 50px);
     overflow-y:scroll;
-    padding:1rem;
+    padding:5px;
     border:1px solid rgb(200,200,200);
-    /* box-shadow: -4px 0px 10px 0px rgb(100,100,100) inset; */
 }
 
 .log {
-    width:15rem;
-    border:1px solid rgb(100,100,100);
-    border-radius:1rem;
+    width:15em;
+    border-bottom:1px solid rgb(200,200,200);
     position:relative;
-    padding:1rem;
-    margin-block-end: 1rem;
+    margin-block: 5px;
 }
 
 .log .title{
-    width:10rem;
+    width:10em;
     word-wrap: break-word;
     overflow-wrap: anywhere;
     margin:0px;
@@ -87,8 +95,8 @@ textarea{
 
 .log .status {
     position:absolute;
-    right:1rem;
-    top:calc(50% - 0.5rem);
+    right:5px;
+    top:calc(50% - 0.5em);
     color:rgb(100,100,100);
 }
 
