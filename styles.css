@@ -1,5 +1,5 @@
 :root{
-    font-size:1.3rem;
+    font-size:max(0.8rem, min(3.8vw, 1.3rem));
 }
 
 body{
@@ -48,9 +48,9 @@ input[type='number']{
     width:3rem;
 }
 
-input[type='radio'], input[type='checkbox']{
-
-}
+/* input[type='radio'], input[type='checkbox']{
+    transform:scale(calc());
+} */
 
 textarea{
     font-size:1rem;
