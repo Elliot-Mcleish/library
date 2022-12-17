@@ -35,6 +35,10 @@ div{
     margin-block:10px;
 }
 
+input[type='text']{
+    width:19rem;
+}
+
 input[type='text'], input[type='number'], input[type='submit']{
     font-size:1rem;
     float:right;
@@ -58,7 +62,7 @@ textarea{
 #logs{
     font-size:15px;
     position: absolute;
-    left: max(calc(50vw + 12.5rem + 10px), calc(100vw - 15em - 35px));
+    left: calc(50vw + 12.5rem + 10px);
     top: 0px;
     max-height:calc(100vh - 50px);
     overflow-y:scroll;
@@ -67,18 +71,20 @@ textarea{
 }
 
 .log {
-    width:15em;
+    width: max(calc(50vw - 12.5rem - 47px), 13em);
     border-bottom:1px solid rgb(200,200,200);
     position:relative;
     margin-block: 5px;
+    display:flex;
+    gap:0.5em;
 }
 
 .log .title{
-    width:10em;
     word-wrap: break-word;
     overflow-wrap: anywhere;
     margin:0px;
     padding:0px;
+    flex:1;
 }
 
 .log .title::before{
@@ -94,16 +100,18 @@ textarea{
 }
 
 .log .status {
-    position:absolute;
-    right:5px;
-    top:calc(50% - 0.5em);
+    text-align:right;
     color:rgb(100,100,100);
 }
 
-.log .status.complete{
+.log.complete .status{
     color:rgb(0,200,0);
 }
 
-.log .status.error{
+.log.error{
+    cursor:pointer;
+}
+
+.log.error .status{
     color:red;
 }

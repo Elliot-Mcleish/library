@@ -93,27 +93,49 @@
                 }
                 log.appendChild(title);
                 log.appendChild(status);
+                log.addEventListener("click", e=>{
+                    let path = e.composedPath();
+                    let pathLength = path.length;
+                    let log = path[path.length - 6];
+                    if(!log.classList.contains('error')) return;
+                    log.classList.remove('error');
+                    let status = log.querySelector(".status");
+                    status.textContent = "Pending...";
+                    submitBook(log);
+                });
                 Logs.appendChild(log);
                 if(atBottom) Logs.scrollTo(0, Logs.scrollHeight);
                 return log;
             }
 
             const Form = document.querySelector("form");
+
+            Form.addEventListener("keydown", (e) => {
+                if(e.target.matches("input") && e.key == "Enter"){
+                    e.preventDefault();
+                    return false;
+                }
+            });
+
+            function submitBook(log){
+                let data = FormDataStorage[log.id];
+                let status = log.querySelector(".status");
+                API("bookdata", data, {method: "POST", cache: "reload"}).then(response=>{
+                    status.innerText = "Complete!";
+                    log.classList.add("complete");
+                }).catch(err=>{
+                    status.innerText = err.message;
+                    log.classList.add("error");
+                });
+            }
+
             Form.addEventListener("submit", (e) => {
                 e.preventDefault();
-                console.log(e);
                 let data = new FormData(Form);
                 data.append("password", window.localStorage.getItem("password"));
                 let log = logBook(data.get("title"), data.get("copies"));
-                let status = log.querySelector(".status");
                 FormDataStorage[log.id] = data;
-                API("bookdata", data, {method: "POST", cache: "reload"}).then(response=>{
-                    status.innerText = "Complete!";
-                    status.classList.add("complete");
-                }).catch(err=>{
-                    status.innerText = err.message;
-                    status.classList.add("error");
-                });
+                submitBook(log);
             });
         </script>
     </body>
