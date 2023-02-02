@@ -11,73 +11,57 @@
         <script src="app.js"></script>
     </head>
     <body>
-
-        <h2>Homeschooler's Library Catalogue</h2>
-        <p>Enter Information about the book:</p>
-        <form class="book">
-            <div>
-                <input type="checkbox" value="false" name="store" id="store" checked>
-                <label for="store">For Testing (will prevent the book from being stored)</label>
-            </div>
-            <div>
+        <section>
+            <h2>Homeschooler's Library Catalogue</h2>
+            <p>Enter Information about the book:</p>
+            <form class="book">
+                <div id="store-option">
+                    <input type="checkbox" value="false" name="store" id="store" checked>
+                    <label for="store" id="store-lore">For Testing (will prevent the book from being stored)</label>
+                </div>
                 <label for="title">Title:</label>
                 <input name="title" id="title" type="text" required>
-            </div>
-            <div>
                 <label for="author">Author:</label>
                 <input name="author" id="author" type="text" required>
-            </div>
-            <fieldset>
-                <legend>Subject(s)</legend>
-                <div>
-                    <input type="radio" value="true" name="fictional" id="fiction" required>
-                    <label for="fiction">Fiction</label>
-                </div>
-                <div>
-                    <input type="radio" value="false" name="fictional" id="non-fiction" required>
-                    <label for="non-fiction">Non-fiction</label>
-                </div>
-                <div>
-                    <div>
-                        <input type="checkbox" value="sci-fi" name="subjects" id="sci-fi">
-                        <label for="sci-fi">Sci-fi</label>
-                    </div>
-                    <div>
-                        <input type="checkbox" value="fantasy" name="subjects" id="fantasy">
-                        <label for="fantasy">Fantasy</label>
-                    </div>
-                </div>
-            </fieldset>
-            <div>
-                <label for="shelf">Shelf Name:</label>
-                <input name="shelf" type="text" id="shelf">
-            </div>
-            <div>
                 <label for="seriesName">Series Name:</label>
                 <input name="seriesName" type="text" id="seriesName">
-            </div>
-            <div>
                 <label for="seriesNumber">Series Number:</label>
                 <input name="seriesNumber" type="number" id="seriesNumber">
-            </div>
-            <div>
+                <label for="tag-input">Tags:</label>
+                <textarea name="tags" hidden id="tags"></textarea>
+                <input type="text" list="auto-tags" id="tag-input" style="grid-column-end:-2;">
+                <button type="button" onclick="addTagFromInput()" disabled>Add</button>
+                <input type="text" list="auto-tags" id="tag-edit" hidden>
+                <datalist id="auto-tags"></datalist>
+                <button onclick="TagListDialog.show()" type="button" id="tag-select-button">Open Tag List...</button>
+                <p id="tag-display"></p>
+                <label for="shelf">Shelf Location:</label>
+                <input name="shelf" type="text" id="shelf">
                 <label for="copies">Number of copies:</label>
-                <input name="copies" type="number" id="copies" min="1">
+                <input name="copies" type="number" id="copies" min="1" value="1">
+                <textarea id="details" name="details" placeholder="Extra Details:"></textarea>
+                <input type="submit">
+            </form>
+        </section>
+        <dialog id="tag-list">
+            <div>
+                <div class="list" onclick="document.getElementById('add-tags').disabled = !(TagList.querySelector('.tag-box:checked'));">
+                    <!-- <div class="tag-item"><input class="tag-box" type="checkbox" value="Thing 1"></div>
+                    <div class="tag-item"><input class="tag-box" type="checkbox" value="Thing 2"></div>
+                    <div class="tag-item"><input class="tag-box" type="checkbox" value="Thing 3"></div>
+                    <div class="tag-item"><input class="tag-box" type="checkbox" value="Thing 4"></div> -->
+                </div>
+                <button id="add-tags" onclick="addTagsFromDialog()" disabled>Add Tags</button>
+                <button id="cancel-tags" onclick="TagListDialog.close()">Cancel</button>
             </div>
-            <textarea name="details" placeholder="Extra Details:"></textarea><br>
-            <input type="submit">
-        </form>
-        <div id="logs" hidden></div>
+        </dialog>
         <script>
-            const Logs = document.getElementById("logs");
+            /*const Logs = document.getElementById("logs");
 
             var FormDataStorage = {};
 
             let logId = 1;
             function logBook(bookName, number){
-                Logs.removeAttribute("hidden");
-                let height = Logs.getBoundingClientRect().height;
-                let atBottom = (Logs.scrollHeight - height) <= (Logs.scrollTop + 10);
                 const log = document.createElement("div");
                 log.classList.add("log");
                 log.setAttribute("id", `logNo-${logId++}`);
@@ -104,39 +88,162 @@
                     submitBook(log);
                 });
                 Logs.appendChild(log);
-                if(atBottom) Logs.scrollTo(0, Logs.scrollHeight);
                 return log;
-            }
+            }*/
 
             const Form = document.querySelector("form");
 
             Form.addEventListener("keydown", (e) => {
                 if(e.target.matches("input") && e.key == "Enter"){
                     e.preventDefault();
+                    if(e.target.id == "tag-input"){
+                        addTagFromInput();
+                    }else{
+                        e.target.nextElementSibling.focus();
+                    }
                     return false;
                 }
             });
 
-            function submitBook(log){
-                let data = FormDataStorage[log.id];
-                let status = log.querySelector(".status");
-                API("bookdata", data, {method: "POST", cache: "reload"}).then(response=>{
-                    status.innerText = "Complete!";
-                    log.classList.add("complete");
-                }).catch(err=>{
-                    status.innerText = err.message;
-                    log.classList.add("error");
-                });
-            }
+            // function submitBook(log){
+            //     let data = FormDataStorage[log.id];
+            //     let status = log.querySelector(".status");
+            //     API("bookdata", data, {method: "POST", cache: "reload"}).then(response=>{
+            //         status.innerText = "Complete!";
+            //         log.classList.add("complete");
+            //     }).catch(err=>{
+            //         status.innerText = err.message;
+            //         log.classList.add("error");
+            //     });
+            // }
 
             Form.addEventListener("submit", (e) => {
                 e.preventDefault();
                 let data = new FormData(Form);
                 data.append("password", window.localStorage.getItem("password"));
-                let log = logBook(data.get("title"), data.get("copies"));
-                FormDataStorage[log.id] = data;
-                submitBook(log);
+                // let log = logBook(data.get("title"), data.get("copies"));
+                // FormDataStorage[log.id] = data;
+                // submitBook(log);
             });
+            
+            const TagListDialog = document.getElementById("tag-list");
+            const TagList = TagListDialog.querySelector(".list");
+            const Tags = document.getElementById("tags");
+            const TagDisplay = document.getElementById("tag-display");
+            const AutoTagList = document.getElementById("auto-tags");
+            const TagInput = document.getElementById("tag-input");
+            
+            const AllTags = {
+                "Thing 0": true,
+                "Thing 1": true,
+                "Thing 2": true,
+                "Thing 3": true,
+                "Thing 4": true,
+                "Thing 5": true,
+                "Thing 6": true,
+                "Thing 7": true,
+                "Thing 8": true,
+                "Thing 9": true,
+                "Thing 10": true,
+                "Thing 11": true,
+                "Thing 12": true,
+                "Thing 13": true,
+                "Thing 14": true,
+                "Thing 15": true,
+                "Thing 16": true,
+                "Thing 17": true,
+                "Thing 18": true,
+                "Thing 19": true,
+                "poetry":   true,
+                "graded reader":false,
+                "biography":    true,
+                "graphic novel":true,
+                "historical fiction":true,
+                "A surprisingly long tag for no apparrent reason": true,
+                "picture book": true,
+                "curriculum":   true,
+                "curriculumba": true,
+                "curriculus":   true,
+                "curriculuw":   true,
+                "curriculuq":   true,
+                "curriculur":   true,
+                "curriculut":   true,
+                "curriculug":   true,
+                "curriculuh":   true,
+                "curriculuj":   true,
+                "curriculuk":   true,
+                "curriculul":   true,
+                "curriculub":   true,
+                "curriculun":   true,
+                "curriculuz":   true,
+            }
+
+            function loadAutoTag(tag){
+                if(document.getElementById(`auto-tag[${encodeURIComponent(tag)}]`)) return console.log("Autocomplete option already exists!");
+                let option = document.createElement("option");
+                option.value = tag;
+                option.id = `auto-tag[${encodeURIComponent(tag)}]`;
+                AutoTagList.appendChild(option);
+            }
+
+            function addTagFromInput(){
+                addTag(TagInput.value);
+                TagInput.value = "";
+                TagInput.nextElementSibling.disabled = true;
+                TagInput.focus();
+            }
+
+            function addTagsFromDialog(){
+                TagList.querySelectorAll(".tag-box:checked").forEach(box => {
+                    addTag(box.value);
+                });
+                TagListDialog.close();
+            }
+
+            function addTag(tag){
+                if(TagDisplay.querySelector(`[value="${encodeURIComponent(tag)}"]`)) return console.log("Already There, Dummy!");
+                Tags.value += `${tag}\n`;
+                let span = document.createElement("span");
+                span.setAttribute("value", encodeURIComponent(tag));
+                span.innerText = tag;
+                TagDisplay.appendChild(span);
+                if(document.getElementById(`auto-tag[${encodeURIComponent(tag)}]`)) return;
+                console.log("Loading new Tag into autocomplete list...");
+                loadAutoTag(tag);
+            }
+
+            function removeTag(tag){
+                let tagDisplay = TagDisplay.querySelector(`[value="${encodeURIComponent(tag)}"]`);
+                if(!tagDisplay) return;
+                tagDisplay.remove();
+                Tags.value = "";
+                TagDisplay.childNodes.forEach(tagElem => {
+                    Tags.value += `${tagElem.textContent}\n`;
+                });
+                // if(AllTags[tag] != undefined) return;
+                // let option = document.getElementById(`auto-tag[${encodeURIComponent(tag)}]`);
+                // if(option) option.remove();
+            }
+
+            TagInput.addEventListener("input", () => {
+                TagInput.nextElementSibling.disabled = !TagInput.value;
+            })
+
+            for(let tag in AllTags){
+                let common = AllTags[tag];
+                loadAutoTag(tag);
+                if(!common) continue;
+                let box = document.createElement("input");
+                box.classList.add("tag-box");
+                box.setAttribute("type", "checkbox");
+                box.setAttribute("value", tag);
+                box.setAttribute("tag", encodeURIComponent(tag));
+                // let div = document.createElement("div");
+                // div.classList.add("tag-item");
+                // div.appendChild(box);
+                TagList.appendChild(box);
+            }
+
         </script>
     </body>
 </html>

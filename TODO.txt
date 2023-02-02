@@ -1,3 +1,14 @@
 
-Determine whether or not we need a "series" field for books
 Create list of all possible subjects
+
+
+sci-fi
+fantasy
+
+poetry
+graded reader
+biography
+graphic novel
+historical fiction
+picture book
+curriculum

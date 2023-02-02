@@ -1,117 +1,159 @@
 :root{
-    font-size:max(0.8rem, min(3.8vw, 1.3rem));
+    font-size:max(0.8rem, min(3.6vw, 1.3rem));
 }
 
 body{
+    
+    margin:0px;
+    font-family:sans-serif;
+}
+
+section{
+    min-width:min-content;
+    padding-inline:0.5rem;
     display:flex;
     flex-direction: column;
     align-items: center;
 }
 
-form.book{
-    width:25rem;
-    position:relative;
+dialog{
+    background-color:rgba(0,0,0,0.5);
+    border:none;
+    position:fixed;
+    padding:0px;
+    left:0px;
+    top:0px;
+    width:100%;
+    height:100%;
+    display:grid;
+    place-items: center;
+    z-index:10;
 }
 
-/* input[type='submit']{
-    position:absolute;
-    left:calc(100% + 3px);
-    bottom:5px;
-} */
-
-/* form div{
-    display:flex;
+dialog:not([open]){
+    display:none;
 }
 
-input[type='text'], input[type='number']{
-    flex:1;
-} */
-
-label, legend{
+#tag-list > *{
+    background-color:white;
     user-select: none;
+    padding:0.5rem;
+    border:5px solid black;
+    border-radius:1rem;
 }
 
-div{
-    margin-block:10px;
+#tag-list .list{
+    /* border:1px solid black; */
+    display:grid;
+    grid-template-columns: repeat(3, 7.5rem);
+    grid-auto-rows:3rem;
+    gap:0.2rem;
+    margin-bottom:0.2rem;
+    max-height:calc(100vh - 4rem);
+    overflow-y:auto;
+}
+
+#tag-list .tag-item{
+    /* border:1px solid black; */
+}
+
+input.tag-box{
+    position:relative;
+    display:flex;
+    align-items: center;
+    align-self: center;
+}
+
+input.tag-box::after{
+    content:attr(value);
+    display:-webkit-box;
+    width:6rem;
+    max-height:3rem;
+    border-radius:0.2rem;
+    padding:0.1rem;
+    padding-left:1.3rem;
+    position:absolute;
+    overflow:hidden;
+    text-overflow: ellipsis;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    left:-0.2rem;
+    font-size:1rem;
+}
+
+input.tag-box:checked:after{
+    background-color:rgba(0,0,255,0.2);
+}
+
+form.book{
+    /* width:25rem; */
+    position:relative;
+    margin-bottom:1rem;
+    display:grid;
+    grid-template-columns: 8.5rem 3rem minmax(10rem, 20rem) 4rem [end];
+    row-gap: 0.2rem;
+}
+
+label{
+    user-select: none;
+    grid-column: 1 / span 1;
+}
+
+input[type='text'], input[type='number'], input[type='submit'], button{
+    font-size:1rem;
 }
 
 input[type='text']{
-    width:19rem;
-}
-
-input[type='text'], input[type='number'], input[type='submit']{
-    font-size:1rem;
-    float:right;
+    grid-column: 2 / -1;
 }
 
 input[type='number']{
-    width:3rem;
+    grid-column: 2 / span 1;
 }
 
-/* input[type='radio'], input[type='checkbox']{
-    transform:scale(calc());
-} */
+input[type='checkbox']{
+    width:0.8rem;
+    height:0.8rem;
+}
+
+input[type='submit']{
+    grid-column: -2 / -1;
+}
 
 textarea{
     font-size:1rem;
-    width:calc(100% - 6px);
     height:4rem;
+    height:40rem;
     resize:none;
 }
 
-#logs{
-    font-size:15px;
-    position: absolute;
-    left: calc(50vw + 12.5rem + 10px);
-    top: 0px;
-    max-height:calc(100vh - 50px);
-    overflow-y:scroll;
-    padding:5px;
-    border:1px solid rgb(200,200,200);
+#tag-select-button{
+    width:8rem;
+    height:1.5rem;
+    padding: 0px;
+    grid-column: 1 / span 1;
 }
 
-.log {
-    width: max(calc(50vw - 12.5rem - 47px), 13em);
-    border-bottom:1px solid rgb(200,200,200);
-    position:relative;
-    margin-block: 5px;
-    display:flex;
-    gap:0.5em;
-}
-
-.log .title{
-    word-wrap: break-word;
-    overflow-wrap: anywhere;
+#tag-display{
     margin:0px;
-    padding:0px;
-    flex:1;
+    grid-column: 2 / -1;
+    margin-bottom:0.5rem;
 }
 
-.log .title::before{
-    content: '"';
+#tag-display span:not(:last-child)::after{
+    content: ", ";
 }
 
-.log .title::after{
-    content: '"';
+#tag-display:empty::before{
+    color:grey;
+    content:"Tags will show up here...";
 }
 
-.log.multiple .title::after{
-    content: '" (' attr(number-of-books) ')';
+#details{
+    grid-column: 1 / -1;
 }
 
-.log .status {
-    text-align:right;
-    color:rgb(100,100,100);
-}
-
-.log.complete .status{
-    color:rgb(0,200,0);
-}
-
-.log.error{
-    cursor:pointer;
-}
-
-.log.error .status{
-    color:red;
+#store-option{
+    grid-column: 1 / -1;
+    text-align: center;
 }
