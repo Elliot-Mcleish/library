@@ -29,12 +29,12 @@
                 <input name="seriesNumber" type="number" id="seriesNumber">
                 <label for="tag-input">Tags:</label>
                 <textarea name="tags" hidden id="tags"></textarea>
-                <input type="text" list="auto-tags" id="tag-input" style="grid-column-end:-2;">
-                <button type="button" onclick="addTagFromInput()" disabled>Add</button>
-                <input type="text" list="auto-tags" id="tag-edit" hidden>
                 <datalist id="auto-tags"></datalist>
-                <button onclick="TagListDialog.show()" type="button" id="tag-select-button">Open Tag List...</button>
-                <p id="tag-display"></p>
+                <input type="text" list="auto-tags" id="tag-input" placeholder="&#x200B;" style="grid-column-end:-2;">
+                <button type="button" onclick="addTagFromInput()" disabled>Add</button>
+                <!-- <input type="text" list="auto-tags" id="tag-edit" hidden> -->
+                <button onclick="openTagsListDialog()" type="button" id="tag-select-button">Open Tag List...</button>
+                <p id="tag-display" onclick="editTag(event)"></p>
                 <label for="shelf">Shelf Location:</label>
                 <input name="shelf" type="text" id="shelf">
                 <label for="copies">Number of copies:</label>
@@ -45,14 +45,9 @@
         </section>
         <dialog id="tag-list">
             <div>
-                <div class="list" onclick="document.getElementById('add-tags').disabled = !(TagList.querySelector('.tag-box:checked'));">
-                    <!-- <div class="tag-item"><input class="tag-box" type="checkbox" value="Thing 1"></div>
-                    <div class="tag-item"><input class="tag-box" type="checkbox" value="Thing 2"></div>
-                    <div class="tag-item"><input class="tag-box" type="checkbox" value="Thing 3"></div>
-                    <div class="tag-item"><input class="tag-box" type="checkbox" value="Thing 4"></div> -->
-                </div>
-                <button id="add-tags" onclick="addTagsFromDialog()" disabled>Add Tags</button>
-                <button id="cancel-tags" onclick="TagListDialog.close()">Cancel</button>
+                <div class="list" onclick="updateSaveButton()"></div>
+                <button id="save-tags" onclick="saveTagsFromDialog()" disabled>Save Selected Tags</button>
+                <button id="cancel-tags" onclick="closeTagsListDialog()">Cancel</button>
             </div>
         </dialog>
         <script>
@@ -132,6 +127,7 @@
             const TagDisplay = document.getElementById("tag-display");
             const AutoTagList = document.getElementById("auto-tags");
             const TagInput = document.getElementById("tag-input");
+            const SaveTagsButton = document.getElementById("save-tags");
             
             const AllTags = {
                 "Thing 0": true,
@@ -178,6 +174,42 @@
                 "curriculuz":   true,
             }
 
+            function editTag(event){
+                if(!event.target.matches("span") || TagInput.value) return;
+                TagInput.value = event.target.innerText;
+                TagInput.nextElementSibling.disabled = !TagInput.value;
+                TagInput.focus();
+                removeTag(event.target.innerText);
+            }
+
+            function updateSaveButton(){
+                SaveTagsButton.disabled = !(TagList.querySelector('.tag-box[was-checked="true"]:not(:checked), .tag-box[was-checked="false"]:checked'));
+            }
+
+            function openTagsListDialog(){
+                TagList.querySelectorAll(".tag-box").forEach(box => {
+                    box.checked = !(!TagDisplay.querySelector(`[value="${encodeURIComponent(box.value)}"]`));
+                    box.setAttribute("was-checked", box.checked);
+                });
+                SaveTagsButton.disabled = true;
+                TagListDialog.show();
+            }
+
+            function closeTagsListDialog(){
+                TagListDialog.close();
+            }
+
+            function saveTagsFromDialog(){
+                TagList.querySelectorAll(".tag-box").forEach(box => {
+                    if(box.checked){
+                        addTag(box.value);
+                    }else{
+                        removeTag(box.value);
+                    }
+                });
+                TagListDialog.close();
+            }
+
             function loadAutoTag(tag){
                 if(document.getElementById(`auto-tag[${encodeURIComponent(tag)}]`)) return console.log("Autocomplete option already exists!");
                 let option = document.createElement("option");
@@ -191,13 +223,6 @@
                 TagInput.value = "";
                 TagInput.nextElementSibling.disabled = true;
                 TagInput.focus();
-            }
-
-            function addTagsFromDialog(){
-                TagList.querySelectorAll(".tag-box:checked").forEach(box => {
-                    addTag(box.value);
-                });
-                TagListDialog.close();
             }
 
             function addTag(tag){
@@ -238,9 +263,6 @@
                 box.setAttribute("type", "checkbox");
                 box.setAttribute("value", tag);
                 box.setAttribute("tag", encodeURIComponent(tag));
-                // let div = document.createElement("div");
-                // div.classList.add("tag-item");
-                // div.appendChild(box);
                 TagList.appendChild(box);
             }
 
