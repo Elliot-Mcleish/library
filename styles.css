@@ -101,6 +101,9 @@ form.book{
 label{
     user-select: none;
     grid-column: 1 / span 1;
+    display:inline-flex;
+    /* align-items: center; */
+    padding-block:0.1rem;
 }
 
 input[type='text'], input[type='number'], input[type='submit'], button{
@@ -128,8 +131,31 @@ input[type='submit']{
 textarea{
     font-size:1rem;
     height:4rem;
-    grid-column: 1 / -1;
+    grid-column: 2 / -1;
     resize:none;
+    font-family:inherit;
+}
+
+form.book .break{
+    grid-column: 1 / -1;
+    min-height:0.6rem;
+}
+
+form.book p.break{
+    margin-block:0.5rem;
+    padding-top:1rem;
+    padding-bottom:0.5rem;
+    border-top:1px solid black;
+    border-bottom:1px solid black;
+    text-align:center;
+}
+
+form.book div.break{
+    padding:0.2rem;
+}
+
+form.book span:not(.tag){
+    display:contents;
 }
 
 #tag-select-button{
@@ -153,7 +179,7 @@ textarea{
     appearance: none;
 } */
 
-#ta-display .tag input{
+#tag-display .tag input{
     display:none;
     user-select: none;
 }
@@ -182,4 +208,8 @@ textarea{
 
 #tag-input:placeholder-shown + button + button + p .tag{
     cursor:pointer;
+}
+
+#copies:not(:valid){
+    color:red;
 }

@@ -18,6 +18,7 @@
                     <input type="checkbox" value="false" name="store" id="store" checked>
                     <label for="store" id="store-lore">For Testing (will prevent the book from being stored)</label>
                 </div>
+                <p class="break">Book Content</p>
                 <label for="title">Title:</label>
                 <input name="title" id="title" type="text" required>
                 <label for="author">Author:</label>
@@ -35,14 +36,24 @@
                 <!-- <input type="text" list="auto-tags" id="tag-edit" hidden> -->
                 <button onclick="openTagsListDialog()" type="button" id="tag-select-button">Open Tag List...</button>
                 <p id="tag-display" onclick="editTag(event)"></p>
-                <textarea id="description" name="description" placeholder="Description: (refers to the book generally, not to any physical copy)"></textarea>
+                <label for="description">Description:</label>
+                <textarea id="description" name="description" placeholder="(refers to the book generally, not to any physical copy)"></textarea>
+                <p class="break"></p>
                 <label for="copies">Number of copies:</label>
-                <input name="copies" type="number" id="copies" min="1" value="1">
-                <label for="shelf">Shelf Location:</label>
-                <input name="shelf" type="text" id="shelf">
-                <textarea id="details" name="details" placeholder="Extra Details, Identifying Marks, etc. (Specific to the unique physical book)"></textarea>
+                <input name="copies" type="number" id="copies" min="1" max="10" value="1">
+                <p class="break">Book Item</p>
+                <span id="book-items">
+                    <span class="book-item">
+                        <label for="shelf">Shelf Location:</label>
+                        <input name="shelf" type="text" id="shelf">
+                        <label for="details">Details:</label>
+                        <textarea id="details" name="details" placeholder="Extra Details, Identifying Marks, etc. (Specific to the unique physical book)"></textarea>
+                        <div class="break"></div>
+                    </span>
+                </span>
                 <input type="submit">
             </form>
+            <div hidden id="book-item-cache"></div>
             <dialog id="tag-list">
                 <div>
                     <div class="list" onclick="updateSaveButton()"></div>
@@ -130,12 +141,41 @@
                 
                 const TagListDialog = document.getElementById("tag-list");
                 const TagList = TagListDialog.querySelector(".list");
-                // const Tags = document.getElementById("tags");
                 const TagDisplay = document.getElementById("tag-display");
                 const AutoTagList = document.getElementById("auto-tags");
                 const HiddenAutoTagList = document.getElementById("hidden-auto-tags");
                 const TagInput = document.getElementById("tag-input");
                 const SaveTagsButton = document.getElementById("save-tags");
+                const Copies = document.getElementById("copies");
+                const BookItemCache = document.getElementById("book-item-cache");
+                const BookItems = document.getElementById("book-items");
+                const BookItemTemplate = BookItems.querySelector(".book-item");
+
+                Copies.addEventListener("input", e => {
+                    if(!Copies.reportValidity()) return;
+                    while(BookItems.childElementCount != Copies.value){
+                        console.log(Copies.value, BookItems.childElementCount);
+                        if(BookItems.childElementCount < Copies.value){
+                            let addedItem = BookItemCache.lastElementChild;
+                            if(!addedItem){
+                                addedItem = BookItemTemplate.cloneNode(true);
+                                addedItem.childNodes.forEach(elem => {
+                                    elem.value = "";
+                                });
+                            }
+                            BookItems.appendChild(addedItem);
+                        }else{
+                            let removedItem = BookItems.lastElementChild;
+                            for(let elem of Array.from(removedItem.children)){
+                                if(elem.value){
+                                    BookItemCache.appendChild(removedItem);
+                                    return;
+                                }
+                            }
+                            removedItem.remove();
+                        }
+                    }
+                });
                 
                 const AllTags = {
                     "Thing 0": true,
