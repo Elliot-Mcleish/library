@@ -154,7 +154,7 @@
                 Copies.addEventListener("input", e => {
                     if(!Copies.reportValidity()) return;
                     while(BookItems.childElementCount != Copies.value){
-                        console.log(Copies.value, BookItems.childElementCount);
+                        // console.log(Copies.value, BookItems.childElementCount);
                         if(BookItems.childElementCount < Copies.value){
                             let addedItem = BookItemCache.lastElementChild;
                             if(!addedItem){
@@ -164,6 +164,8 @@
                                 });
                             }
                             BookItems.appendChild(addedItem);
+                        }else if(!Copies.value){
+                            return;
                         }else{
                             let removedItem = BookItems.lastElementChild;
                             for(let elem of Array.from(removedItem.children)){
