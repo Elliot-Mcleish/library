@@ -3,17 +3,27 @@
 }
 
 body{
-    
     margin:0px;
+    padding-block:1rem;
     font-family:sans-serif;
+    display:flex;
+    flex-direction: column;
+    gap:0.5rem;
 }
 
 section{
-    min-width:min-content;
+    min-width:26rem;
+    /* max-width:36rem; */
     padding-inline:0.5rem;
     display:flex;
     flex-direction: column;
     align-items: center;
+    position:relative;
+    overflow-x:hidden;
+}
+
+section[hidden]{
+    display:none;
 }
 
 dialog{
@@ -82,11 +92,9 @@ input.tag-box:checked:after{
 }
 
 form.book{
-    /* width:25rem; */
     position:relative;
-    margin-bottom:1rem;
     display:grid;
-    grid-template-columns: 8.5rem 3rem minmax(10rem, 20rem) 4rem [end];
+    grid-template-columns: 8.5rem 3rem minmax(10rem, 20.5rem) 4rem [end];
     row-gap: 0.2rem;
 }
 
@@ -114,12 +122,13 @@ input[type='checkbox']{
 
 input[type='submit']{
     grid-column: -2 / -1;
+    padding-inline: 0px;
 }
 
 textarea{
     font-size:1rem;
     height:4rem;
-    /* height:40rem; */
+    grid-column: 1 / -1;
     resize:none;
 }
 
@@ -136,8 +145,29 @@ textarea{
     margin-bottom:0.5rem;
 }
 
-#tag-display span:not(:last-child)::after{
+/* #tag-display .tag{
+    border:none;
+    outline:none;
+    margin:0px;
+    padding:0px;
+    appearance: none;
+} */
+
+#ta-display .tag input{
+    display:none;
+    user-select: none;
+}
+
+/* #tag-display .tag::before{
+    content: attr(value);
+    display:inline-block;
+    font-size:1rem;
+} */
+
+#tag-display .tag:not(:last-child)::after{
     content: ", ";
+    /* display:inline-block; */
+    font-size:1rem;
 }
 
 #tag-display:empty::before{
@@ -145,15 +175,11 @@ textarea{
     content:"Tags will show up here...";
 }
 
-#details{
-    grid-column: 1 / -1;
-}
-
 #store-option{
     grid-column: 1 / -1;
     text-align: center;
 }
 
-#tag-input:placeholder-shown + button + button + p span{
+#tag-input:placeholder-shown + button + button + p .tag{
     cursor:pointer;
 }
