@@ -11,6 +11,7 @@
     </head>
     <body>
         <h2>Homeschooler's Library Catalogue</h2>
+        <div id="online-indicator"></div>
         <section hidden>
             <p>Enter Information about the book:</p>
             <form class="book">
@@ -398,6 +399,11 @@
             document.addEventListener("database-loaded", e => {
                 document.getElementById("loading-graphic").hidden = true;
                 document.querySelector("section").hidden = false;
+                let Indicator = document.getElementById("online-indicator");
+                var indication = (DATABASE.outdated === false) ? {g:255, title:"Local Database is up to date"} : {g:100, title:"Local Database may be out of date"};
+                Indicator.style.backgroundColor = `rgb(100,${indication.g},100)`;
+                Indicator.style.cursor = "help";
+                Indicator.setAttribute("title", indication.title)
                 console.log("Database:", DATABASE);
             });
         </script>
