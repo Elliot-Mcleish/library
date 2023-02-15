@@ -49,14 +49,62 @@ if('serviceWorker' in navigator){
 }
 
 const API_URL = "http://elliotmcleish.wixsite.com/library/_functions/";
-function API(fname, searchParams="", options={}){
-    if(!fname) return fetch("404");
+async function API(fname, searchParams="", options={}){
     let fullUrlString = `${API_URL}${fname}`;
     if(searchParams){
         let parsedSearchParams = new URLSearchParams(searchParams);
         fullUrlString = `${fullUrlString}?${parsedSearchParams}`;
     }
-    return fetch(fullUrlString, options);
+
+    try{
+        let response = await fetch(fullUrlString, options);
+        if(!response.ok) throw response;
+        return await response.json();
+    }catch(err){
+        if(err instanceof Response) throw (err.status == 404) ? {status:404, statusText:"function not found"} : {status:err.status, statusText:err.statusText};
+        throw navigator.onLine ? {status:404, statusText:"function not found"} : {status:418, statusText:"offline"};
+    }
 }
 
-// API("auth", {"password":window.localStorage.getItem("password")}, {cache: "reload"}).then(console.log.bind(console));
+// API("authe", {"password":window.localStorage.getItem("password")}, {cache: "reload"}).then(console.log.bind(console)).catch(err => {
+//     console.error(err);
+// })
+
+var DATABASE = {loaded:false};
+
+function loadDatabase(data){
+    DATABASE = {loaded:false};
+    data.loadPattern.forEach((collectionName, index) => {
+        let collectionData = {};
+        data.results[index].forEach(item => {
+            collectionData[decodeURI(item._id)] = item;
+        });
+        DATABASE[collectionName] = collectionData;
+    });
+    DATABASE.date = new Date(data.dbState.date).valueOf();
+    DATABASE.loaded = true;
+}
+
+try{
+    loadDatabase(JSON.parse(window.localStorage.getItem("database")));
+    console.log("Loaded local database");
+}catch{
+    console.warn("Failed to load local database!\n", window.localStorage.getItem("database"));
+}
+
+API("outdated", {"date":DATABASE.date}, {cache:"reload"}).then(answer => {
+    DATABASE.outdated = answer.outdated;
+    if(!DATABASE.outdated) return console.log("Local Database is up to date!\n", DATABASE);
+    console.log("Local Database is outdated!");
+    API("load", {"password":window.localStorage.getItem("wrongpassword")}, {cache:"reload"}).then(data => {
+        loadDatabase(data);
+        window.localStorage.setItem("database", JSON.stringify(data));
+        DATABASE.outdated = false;
+        console.log("Updated local Database\n", DATABASE);
+    });
+}).catch(badResponse => {
+    DATABASE.outdated = null;
+    console.log("Cannot tell if database is outdated\n", badResponse);
+}).finally(() => {
+    document.dispatchEvent(new Event("database-loaded"));
+});

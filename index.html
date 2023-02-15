@@ -10,40 +10,54 @@
         <script src="app.js"></script>
     </head>
     <body>
-        <section>
-            <h2>Homeschooler's Library Catalogue</h2>
+        <h2>Homeschooler's Library Catalogue</h2>
+        <section hidden>
             <p>Enter Information about the book:</p>
             <form class="book">
                 <div id="store-option">
                     <input type="checkbox" value="false" name="store" id="store" checked>
-                    <label for="store" id="store-lore">For Testing (will prevent the book from being stored)</label>
+                    <label for="store" id="store-lore">For Testing</label>
                 </div>
+                <div class="break"></div>
+                <label for="contents">Books within book:</label>
+                <input name="contents" type="number" list-id="content-items" id="contents" min="1" max="30" value="1">
                 <p class="break">Book Content</p>
-                <label for="title">Title:</label>
-                <input name="title" id="title" type="text" required>
-                <label for="author">Author:</label>
-                <input name="author" id="author" type="text" required>
-                <label for="seriesName">Series Name:</label>
-                <input name="seriesName" type="text" id="seriesName">
-                <label for="seriesNumber">Series Number:</label>
-                <input name="seriesNumber" type="number" id="seriesNumber">
-                <label for="tag-input">Tags:</label>
-                <!-- <textarea name="tags" hidden id="tags"></textarea> -->
+                <span id="content-items" class="item-list">
+                    <span class="item content-item">
+                        <input type="hidden" id="contentId" name="contentId">
+                        <label for="title">Title:</label>
+                        <input name="title" id="title" type="text">
+                        <label for="subtitle">Subtitle:</label>
+                        <input name="subtitle" id="subtitle" type="text">
+                        <label for="author">Author:</label>
+                        <input name="author" id="author" type="text">
+                        <label for="seriesName">Series Name:</label>
+                        <input name="seriesName" type="text" id="seriesName">
+                        <label for="seriesNumber">Series Number:</label>
+                        <input name="seriesNumber" type="number" id="seriesNumber">
+                        <label for="tag-input">Tags:</label>
+                        <input type="text" list="auto-tags" id="tag-input" class="tag-input" placeholder="&#x200B;" style="grid-column-end:-2;" oninput="this.nextElementSibling.disabled = !this.value">
+                        <button type="button" onclick="addTagFromInput(this.previousElementSibling)" disabled>Add</button>
+                        <!-- <input type="text" list="auto-tags" id="tag-edit" hidden> -->
+                        <button onclick="openTagsListDialog(this.parentElement)" type="button" class="tag-select-button">Open Tag List...</button>
+                        <p class="tag-display" onclick="editTag(event, this.parentElement)"></p>
+                        <label for="description">Description:</label>
+                        <textarea id="description" name="description" placeholder="(refers to the book generally, not to any physical copy)"></textarea>
+                        <div class="break"></div>
+                    </span>
+                </span>
                 <datalist id="auto-tags"></datalist>
                 <datalist id="hidden-auto-tags"></datalist>
-                <input type="text" list="auto-tags" id="tag-input" placeholder="&#x200B;" style="grid-column-end:-2;">
-                <button type="button" onclick="addTagFromInput()" disabled>Add</button>
-                <!-- <input type="text" list="auto-tags" id="tag-edit" hidden> -->
-                <button onclick="openTagsListDialog()" type="button" id="tag-select-button">Open Tag List...</button>
-                <p id="tag-display" onclick="editTag(event)"></p>
-                <label for="description">Description:</label>
-                <textarea id="description" name="description" placeholder="(refers to the book generally, not to any physical copy)"></textarea>
                 <p class="break"></p>
+                <span id="collectionTitleInput" hidden>
+                    <label for="bookTitle">Collection Title:</label>
+                    <input name="bookTitle" id="bookTitle" type="text" placeholder="(Defaults to first content title)">
+                </span>
                 <label for="copies">Number of copies:</label>
-                <input name="copies" type="number" id="copies" min="1" max="10" value="1">
+                <input name="copies" type="number" list-id="book-items" id="copies" min="1" max="30" value="1">
                 <p class="break">Book Item</p>
-                <span id="book-items">
-                    <span class="book-item">
+                <span id="book-items" class="item-list">
+                    <span class="item book-item">
                         <label for="shelf">Shelf Location:</label>
                         <input name="shelf" type="text" id="shelf">
                         <label for="details">Details:</label>
@@ -51,8 +65,9 @@
                         <div class="break"></div>
                     </span>
                 </span>
-                <input type="submit">
+                <input id="book-submit-button" type="submit">
             </form>
+            <div hidden id="content-item-cache"></div>
             <div hidden id="book-item-cache"></div>
             <dialog id="tag-list">
                 <div>
@@ -60,287 +75,331 @@
                     <button id="save-tags" onclick="saveTagsFromDialog()" disabled>Save Selected Tags</button>
                     <button id="cancel-tags" onclick="closeTagsListDialog()">Cancel</button>
                 </div>
+                <a hidden id="quick-tags-to-content-item-anchor"></a>
             </dialog>
-            <script>
-                /*const Logs = document.getElementById("logs");
-    
-                var FormDataStorage = {};
-    
-                let logId = 1;
-                function logBook(bookName, number){
-                    const log = document.createElement("div");
-                    log.classList.add("log");
-                    log.setAttribute("id", `logNo-${logId++}`);
-                    const title = document.createElement("p");
-                    title.classList.add("title");
-                    const status = document.createElement("span");
-                    status.classList.add("status");
-                    title.textContent = bookName;
-                    status.textContent = "Pending...";
-                    if(number > 1){
-                        log.classList.add("multiple");
-                        title.setAttribute("number-of-books", number);
-                    }
-                    log.appendChild(title);
-                    log.appendChild(status);
-                    log.addEventListener("click", e=>{
-                        let path = e.composedPath();
-                        let pathLength = path.length;
-                        let log = path[path.length - 6];
-                        if(!log.classList.contains('error')) return;
-                        log.classList.remove('error');
-                        let status = log.querySelector(".status");
-                        status.textContent = "Pending...";
-                        submitBook(log);
-                    });
-                    Logs.appendChild(log);
-                    return log;
-                }*/
-    
-                const Form = document.querySelector("form");
-    
-                Form.addEventListener("keydown", (e) => {
-                    if(e.target.matches("input") && e.key == "Enter"){
-                        if(e.target.id == "tag-input"){
-                            addTagFromInput();
-                        }else{
-                            if(!e.target.nextElementSibling) return;
-                            e.target.nextElementSibling.focus();
-                        }
-                        e.preventDefault();
-                        return false;
-                    }
-                });
-    
-                // function submitBook(log){
-                //     let data = FormDataStorage[log.id];
-                //     let status = log.querySelector(".status");
-                //     API("bookdata", data, {method: "POST", cache: "reload"}).then(response=>{
-                //         status.innerText = "Complete!";
-                //         log.classList.add("complete");
-                //     }).catch(err=>{
-                //         status.innerText = err.message;
-                //         log.classList.add("error");
-                //     });
-                // }
-    
-                Form.addEventListener("submit", (e) => {
-                    e.preventDefault();
-                    let data = new FormData(Form);
-                    data.append("password", window.localStorage.getItem("password"));
-                    API("bookdata", data, {method: "POST", cache: "reload"}).then(async response=>{
-                        let data = await response.json();
-                        console.log("Complete!", response, data);
-                    }).catch(err=>{
-                        console.error("Error submitting book!", err.message);
-                    });
-                    // let log = logBook(data.get("title"), data.get("copies"));
-                    // FormDataStorage[log.id] = data;
-                    // submitBook(log);
-                });
-                
-                const TagListDialog = document.getElementById("tag-list");
-                const TagList = TagListDialog.querySelector(".list");
-                const TagDisplay = document.getElementById("tag-display");
-                const AutoTagList = document.getElementById("auto-tags");
-                const HiddenAutoTagList = document.getElementById("hidden-auto-tags");
-                const TagInput = document.getElementById("tag-input");
-                const SaveTagsButton = document.getElementById("save-tags");
-                const Copies = document.getElementById("copies");
-                const BookItemCache = document.getElementById("book-item-cache");
-                const BookItems = document.getElementById("book-items");
-                const BookItemTemplate = BookItems.querySelector(".book-item");
-
-                Copies.addEventListener("input", e => {
-                    if(!Copies.reportValidity()) return;
-                    while(BookItems.childElementCount != Copies.value){
-                        // console.log(Copies.value, BookItems.childElementCount);
-                        if(BookItems.childElementCount < Copies.value){
-                            let addedItem = BookItemCache.lastElementChild;
-                            if(!addedItem){
-                                addedItem = BookItemTemplate.cloneNode(true);
-                                addedItem.childNodes.forEach(elem => {
-                                    elem.value = "";
-                                });
-                            }
-                            BookItems.appendChild(addedItem);
-                        }else if(!Copies.value){
-                            return;
-                        }else{
-                            let removedItem = BookItems.lastElementChild;
-                            for(let elem of Array.from(removedItem.children)){
-                                if(elem.value){
-                                    BookItemCache.appendChild(removedItem);
-                                    return;
-                                }
-                            }
-                            removedItem.remove();
-                        }
-                    }
-                });
-                
-                const AllTags = {
-                    "Thing 0": true,
-                    "Thing 1": true,
-                    "Thing 2": true,
-                    "Thing 3": true,
-                    "Thing 4": true,
-                    "Thing 5": true,
-                    "Thing 6": true,
-                    "Thing 7": true,
-                    "Thing 8": true,
-                    "Thing 9": true,
-                    "Thing 10": true,
-                    "Thing 11": true,
-                    "Thing 12": true,
-                    "Thing 13": true,
-                    "Thing 14": true,
-                    "Thing 15": true,
-                    "Thing 16": true,
-                    "Thing 17": true,
-                    "Thing 18": true,
-                    "Thing 19": true,
-                    "poetry":   true,
-                    "graded reader":false,
-                    "biography":    true,
-                    "graphic novel":true,
-                    "historical fiction":true,
-                    "A surprisingly long tag for no apparrent reason": true,
-                    "picture book": true,
-                    "curriculum":   true,
-                    "curriculumba": true,
-                    "curriculus":   true,
-                    "curriculuw":   true,
-                    "curriculuq":   true,
-                    "curriculur":   true,
-                    "curriculut":   true,
-                    "curriculug":   true,
-                    "curriculuh":   true,
-                    "curriculuj":   true,
-                    "curriculuk":   true,
-                    "curriculul":   true,
-                    "curriculub":   true,
-                    "curriculun":   true,
-                    "curriculuz":   true,
-                }
-    
-                function editTag(event){
-                    if(!event.target.classList.contains("tag") || TagInput.value) return;
-                    TagInput.value = event.target.innerText;
-                    TagInput.nextElementSibling.disabled = !TagInput.value;
-                    TagInput.focus();
-                    removeTag(event.target.innerText);
-                }
-    
-                function updateSaveButton(){
-                    SaveTagsButton.disabled = !(TagList.querySelector('.tag-box[was-checked="true"]:not(:checked), .tag-box[was-checked="false"]:checked'));
-                }
-    
-                function openTagsListDialog(){
-                    TagList.querySelectorAll(".tag-box").forEach(box => {
-                        box.checked = !(!TagDisplay.querySelector(`[tagname="${encodeURIComponent(box.value)}"]`));
-                        box.setAttribute("was-checked", box.checked);
-                    });
-                    SaveTagsButton.disabled = true;
-                    TagListDialog.show();
-                }
-    
-                function closeTagsListDialog(){
-                    TagListDialog.close();
-                }
-    
-                function saveTagsFromDialog(){
-                    TagList.querySelectorAll(".tag-box").forEach(box => {
-                        if(box.checked){
-                            addTag(box.value);
-                        }else{
-                            removeTag(box.value);
-                        }
-                    });
-                    TagListDialog.close();
-                }
-    
-                function loadAutoTag(tag){
-                    if(document.getElementById(`auto-tag[${encodeURIComponent(tag)}]`)) return console.log("Autocomplete option already exists!");
-                    let option = document.createElement("option");
-                    option.value = tag;
-                    option.id = `auto-tag[${encodeURIComponent(tag)}]`;
-                    AutoTagList.appendChild(option);
-                }
-
-                function hideAutoTag(tag){
-                    let option = document.getElementById(`auto-tag[${encodeURIComponent(tag)}]`);
-                    if(!option) return console.log("Autocomplete option does not exist to be hidden!");
-                    HiddenAutoTagList.appendChild(option);
-                }
-    
-                function showAutoTag(tag){
-                    let option = document.getElementById(`auto-tag[${encodeURIComponent(tag)}]`);
-                    if(!option) return console.log("Autocomplete option does not exist to be shown!");
-                    AutoTagList.appendChild(option);
-                }
-    
-                function addTagFromInput(){
-                    addTag(TagInput.value);
-                    TagInput.value = "";
-                    TagInput.nextElementSibling.disabled = true;
-                    TagInput.focus();
-                }
-    
-                function addTag(tag){
-                    if(TagDisplay.querySelector(`[tagname="${encodeURIComponent(tag)}"]`)) return console.log("Already There, Dummy!");
-                    // Tags.value += `${tag}\n`;
-                    let tagElem = document.createElement("span");
-                    let input = document.createElement("input");
-                    tagElem.classList.add("tag");
-                    tagElem.setAttribute("tagname", encodeURIComponent(tag));
-                    input.setAttribute("readonly", "true");
-                    input.setAttribute("type", "hidden");
-                    input.setAttribute("name", "tags");
-                    input.value = tag;
-                    tagElem.innerText = tag;
-                    tagElem.appendChild(input);
-                    TagDisplay.appendChild(tagElem);
-                    // if(document.getElementById(`auto-tag[${encodeURIComponent(tag)}]`)) return;
-                    // console.log("Loading new Tag into autocomplete list...");
-                    loadAutoTag(tag);
-                    hideAutoTag(tag);
-                }
-    
-                function removeTag(tag){
-                    let tagElem = TagDisplay.querySelector(`[tagname="${encodeURIComponent(tag)}"]`);
-                    if(!tagElem) return;
-                    tagElem.remove();
-                    // Tags.value = "";
-                    // TagDisplay.childNodes.forEach(tagElem => {
-                    //     Tags.value += `${tagElem.textContent}\n`;
-                    // });
-                    showAutoTag(tag);
-                    // if(AllTags[tag] != undefined) return;
-                    // let option = document.getElementById(`auto-tag[${encodeURIComponent(tag)}]`);
-                    // if(option) option.remove();
-                }
-    
-                TagInput.addEventListener("input", () => {
-                    TagInput.nextElementSibling.disabled = !TagInput.value;
-                })
-    
-                for(let tag in AllTags){
-                    let common = AllTags[tag];
-                    loadAutoTag(tag);
-                    if(!common) continue;
-                    let box = document.createElement("input");
-                    box.classList.add("tag-box");
-                    box.setAttribute("type", "checkbox");
-                    box.setAttribute("value", tag);
-                    box.setAttribute("tag", encodeURIComponent(tag));
-                    TagList.appendChild(box);
-                }
-    
-            </script>
         </section>
         <!-- <section>
             <div style="border:1px solid black; min-width:25rem; width:100%; height:50rem;"></div>
         </section> -->
+        <div id="loading-graphic">
+            <span>Loading</span>
+        </div>
+        <script>
+            /*const Logs = document.getElementById("logs");
+
+            var FormDataStorage = {};
+
+            let logId = 1;
+            function logBook(bookName, number){
+                const log = document.createElement("div");
+                log.classList.add("log");
+                log.setAttribute("id", `logNo-${logId++}`);
+                const title = document.createElement("p");
+                title.classList.add("title");
+                const status = document.createElement("span");
+                status.classList.add("status");
+                title.textContent = bookName;
+                status.textContent = "Pending...";
+                if(number > 1){
+                    log.classList.add("multiple");
+                    title.setAttribute("number-of-books", number);
+                }
+                log.appendChild(title);
+                log.appendChild(status);
+                log.addEventListener("click", e=>{
+                    let path = e.composedPath();
+                    let pathLength = path.length;
+                    let log = path[path.length - 6];
+                    if(!log.classList.contains('error')) return;
+                    log.classList.remove('error');
+                    let status = log.querySelector(".status");
+                    status.textContent = "Pending...";
+                    submitBook(log);
+                });
+                Logs.appendChild(log);
+                return log;
+            }*/
+
+            const Form = document.querySelector("form");
+            const SubmitButton = document.getElementById("book-submit-button");
+
+            Form.addEventListener("keydown", (e) => {
+                if(e.target.matches("input") && e.key == "Enter"){
+                    if(e.target.id == "tag-input"){
+                        addTagFromInput(e.target);
+                    }else{
+                        if(!e.target.nextElementSibling) return;
+                        e.target.nextElementSibling.focus();
+                    }
+                    e.preventDefault();
+                    return false;
+                }
+            });
+
+            // function submitBook(log){
+            //     let data = FormDataStorage[log.id];
+            //     let status = log.querySelector(".status");
+            //     API("bookdata", data, {method: "POST", cache: "reload"}).then(response=>{
+            //         status.innerText = "Complete!";
+            //         log.classList.add("complete");
+            //     }).catch(err=>{
+            //         status.innerText = err.message;
+            //         log.classList.add("error");
+            //     });
+            // }
+
+            Form.addEventListener("submit", (e) => {
+                e.preventDefault();
+                if(SubmitButton.disabled) return console.log("Hold your horses!");
+                SubmitButton.disabled = true;
+
+                let data = new FormData(Form);
+                data.append("password", window.localStorage.getItem("password"));
+
+                data.delete("tags");
+                let tagsArr = [];
+                Form.querySelectorAll("p.tag-display").forEach(pElem => {
+                    let itemTags = [];
+                    pElem.querySelectorAll("input").forEach(input => itemTags.push(input.value));
+                    tagsArr.push(itemTags.join("^"));
+                });
+                // let tagsArr = data.getAll("tags").join("^").split(/\^\|\^?/);
+                // data.delete("tags");
+                tagsArr.forEach(tagString => data.append("tags", tagString));
+
+                let bookTitle = data.get("bookTitle") || data.get("title");
+                data.delete("bookTitle");
+                while(data.getAll("bookTitle").length < Copies.value) data.append("bookTitle", bookTitle);
+
+                API("bookdata", data, {method: "POST", cache: "reload"}).then(data => {
+                    console.log("Complete!", data);
+                }).catch(badResponse => {
+                    console.error("Error submitting book!", badResponse);
+                }).finally(() => {
+                    SubmitButton.disabled = false;
+                })
+                // let log = logBook(data.get("title"), data.get("copies"));
+                // FormDataStorage[log.id] = data;
+                // submitBook(log);
+            });
+            
+            const TagListDialog = document.getElementById("tag-list");
+            const TagList = TagListDialog.querySelector(".list");
+
+            const QuickTagsAnchor = document.getElementById("quick-tags-to-content-item-anchor");
+
+            const AutoTagList = document.getElementById("auto-tags");
+            const HiddenAutoTagList = document.getElementById("hidden-auto-tags");
+
+            const CollectionTitleInput = document.getElementById("collectionTitleInput");
+
+            const SaveTagsButton = document.getElementById("save-tags");
+
+            const Contents = document.getElementById("contents");
+            const ContentItemCache = document.getElementById("content-item-cache");
+            const ContentItems = document.getElementById("content-items");
+            const ContentItemTemplate = ContentItems.querySelector(".content-item");
+
+            const Copies = document.getElementById("copies");
+            const BookItemCache = document.getElementById("book-item-cache");
+            const BookItems = document.getElementById("book-items");
+            const BookItemTemplate = BookItems.querySelector(".book-item");
+
+            function handleItemNumberChange(e){
+                let input = e.target;
+                input.nextElementSibling.setAttribute("plural", input.value > 1);
+                if(!input.reportValidity() || !input.value) return;
+                let listId = input.getAttribute("list-id");
+                let itemList = document.getElementById(listId);
+                let itemCache = document.getElementById(listId.slice(0,-1).concat("-cache"));
+                let template = itemList.firstElementChild;
+                while(itemList.childElementCount != input.value){
+                    if(itemList.childElementCount < input.value){
+                        let addedItem = itemCache.lastElementChild;
+                        if(!addedItem){
+                            addedItem = template.cloneNode(true);
+                            addedItem.querySelectorAll(".tag").forEach(elem => elem.remove());
+                            addedItem.querySelectorAll("textarea, input:not(.const)").forEach(elem => elem.value = "");
+                        }
+                        itemList.appendChild(addedItem);
+                    }else{
+                        let removedItem = itemList.lastElementChild;
+                        let shouldRemove = true;
+                        let allValues = Array.from(removedItem.querySelectorAll("textarea, input:not(.const)"));
+                        let valueNum = allValues.length;
+                        for(let i = 0; i < valueNum; ++i){
+                            if(!allValues[i].value) continue;
+                            itemCache.appendChild(removedItem);
+                            shouldRemove = false;
+                            break;
+                        }
+                        if(shouldRemove) removedItem.remove();
+                    }
+                }
+            }
+
+            Contents.addEventListener("input", handleItemNumberChange);
+            Contents.addEventListener("input", e => {
+                CollectionTitleInput.hidden = !(e.target.value > 1);
+            })
+            Copies.addEventListener("input", handleItemNumberChange);
+
+            const AllTags = {
+                "Thing 0": true,
+                "Thing 1": true,
+                "Thing 2": true,
+                "Thing 3": true,
+                "Thing 4": true,
+                "Thing 5": true,
+                "Thing 6": true,
+                "Thing 7": true,
+                "Thing 8": true,
+                "Thing 9": true,
+                "Thing 10": true,
+                "Thing 11": true,
+                "Thing 12": true,
+                "Thing 13": true,
+                "Thing 14": true,
+                "Thing 15": true,
+                "Thing 16": true,
+                "Thing 17": true,
+                "Thing 18": true,
+                "Thing 19": true,
+                "poetry":   true,
+                "graded reader":false,
+                "biography":    true,
+                "graphic novel":true,
+                "historical fiction":true,
+                "A surprisingly long tag for no apparrent reason": true,
+                "picture book": true,
+                "curriculum":   true,
+                "curriculumba": true,
+                "curriculus":   true,
+                "curriculuw":   true,
+                "curriculuq":   true,
+                "curriculur":   true,
+                "curriculut":   true,
+                "curriculug":   true,
+                "curriculuh":   true,
+                "curriculuj":   true,
+                "curriculuk":   true,
+                "curriculul":   true,
+                "curriculub":   true,
+                "curriculun":   true,
+                "curriculuz":   true,
+            }
+
+            function editTag(event, contentItem){
+                let tagInput = contentItem.querySelector(".tag-input");
+                if(!event.target.classList.contains("tag") || tagInput.value) return;
+                tagInput.value = event.target.innerText;
+                tagInput.nextElementSibling.disabled = !tagInput.value;
+                tagInput.focus();
+                removeTag(event.target.innerText, contentItem);
+            }
+
+            function updateSaveButton(){
+                SaveTagsButton.disabled = !(TagList.querySelector('.tag-box[was-checked="true"]:not(:checked), .tag-box[was-checked="false"]:checked'));
+            }
+
+            function openTagsListDialog(contentItem){
+                contentItem.appendChild(QuickTagsAnchor);
+                TagList.querySelectorAll(".tag-box").forEach(box => {
+                    box.checked = !(!contentItem.querySelector(`.tag-display [tagname="${encodeURIComponent(box.value)}"]`));
+                    box.setAttribute("was-checked", box.checked);
+                });
+                SaveTagsButton.disabled = true;
+                TagListDialog.show();
+            }
+
+            function closeTagsListDialog(){
+                TagListDialog.appendChild(QuickTagsAnchor);
+                TagListDialog.close();
+            }
+
+            function saveTagsFromDialog(){
+                let contentItem = QuickTagsAnchor.parentElement;
+                TagList.querySelectorAll(".tag-box").forEach(box => {
+                    if(box.checked){
+                        addTag(box.value, contentItem);
+                    }else{
+                        removeTag(box.value, contentItem);
+                    }
+                });
+                closeTagsListDialog();
+            }
+
+            function loadAutoTag(tag){
+                if(document.getElementById(`auto-tag[${encodeURIComponent(tag)}]`)) return console.log("Autocomplete option already exists!");
+                let option = document.createElement("option");
+                option.value = tag;
+                option.id = `auto-tag[${encodeURIComponent(tag)}]`;
+                AutoTagList.appendChild(option);
+            }
+
+            // function hideAutoTag(tag){
+            //     let option = document.getElementById(`auto-tag[${encodeURIComponent(tag)}]`);
+            //     if(!option) return console.log("Autocomplete option does not exist to be hidden!");
+            //     HiddenAutoTagList.appendChild(option);
+            // }
+
+            // function showAutoTag(tag){
+            //     let option = document.getElementById(`auto-tag[${encodeURIComponent(tag)}]`);
+            //     if(!option) return console.log("Autocomplete option does not exist to be shown!");
+            //     AutoTagList.appendChild(option);
+            // }
+
+            function addTagFromInput(inputElem){
+                addTag(inputElem.value, inputElem.parentElement);
+                inputElem.value = "";
+                inputElem.nextElementSibling.disabled = true;
+                inputElem.focus();
+            }
+
+            function addTag(tag, contentItem){
+                let tagDisplay = contentItem.querySelector(".tag-display");
+                if(tagDisplay.querySelector(`[tagname="${encodeURIComponent(tag)}"]`)) return console.log("Already There, Dummy!");
+                let tagElem = document.createElement("span");
+                let input = document.createElement("input");
+                tagElem.classList.add("tag");
+                tagElem.setAttribute("tagname", encodeURIComponent(tag));
+                input.setAttribute("readonly", "true");
+                input.setAttribute("type", "hidden");
+                input.setAttribute("name", "tags");
+                input.value = encodeURIComponent(tag);
+                tagElem.innerText = tag;
+                tagElem.appendChild(input);
+                tagDisplay.appendChild(tagElem);
+                // if(document.getElementById(`auto-tag[${encodeURIComponent(tag)}]`)) return;
+                // console.log("Loading new Tag into autocomplete list...");
+                loadAutoTag(tag);
+                // hideAutoTag(tag);
+            }
+
+            function removeTag(tag, contentItem){
+                let tagElem = contentItem.querySelector(`.tag-display [tagname="${encodeURIComponent(tag)}"]`);
+                if(!tagElem) return;
+                tagElem.remove();
+                // showAutoTag(tag);
+            }
+
+            for(let tag in AllTags){
+                let common = AllTags[tag];
+                loadAutoTag(tag);
+                if(!common) continue;
+                let box = document.createElement("input");
+                box.classList.add("tag-box");
+                box.setAttribute("type", "checkbox");
+                box.setAttribute("value", tag);
+                box.setAttribute("tag", encodeURIComponent(tag));
+                TagList.appendChild(box);
+            }
+
+            document.addEventListener("database-loaded", e => {
+                document.getElementById("loading-graphic").hidden = true;
+                document.querySelector("section").hidden = false;
+                console.log("Database:", DATABASE);
+            });
+        </script>
     </body>
 </html>

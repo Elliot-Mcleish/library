@@ -1,7 +1,8 @@
 
-const cacheName = "HLPWA-v1.63";
+const cacheName = "HLPWA-v-alpha-1.0";
 
 const Testing = self.location.host.split(":")[0] == "localhost";
+const Verbose = false;
 
 const appShellFiles = [
     '/index.html',
@@ -11,21 +12,21 @@ const appShellFiles = [
 ];
 
 self.addEventListener('install', (e) => {
-    console.log('[Service Worker] Install');
+    if(Verbose) console.log('[Service Worker] Install');
     e.waitUntil((async () => {
         const cache = await caches.open(cacheName);
-        console.log('[Service Worker] Caching app shell');
+        if(Verbose) console.log('[Service Worker] Caching app shell');
         try{
             await cache.addAll(appShellFiles);
         } catch(err){
-            console.log("App failed to cache!");
-            console.error(err);
+            if(Verbose) console.log("App failed to cache!");
+            if(Verbose) console.error(err);
         }
     })());
 });
 
 self.addEventListener('message', (e) => {
-    console.log("[Service Worker] got a message", e);
+    if(Verbose) console.log("[Service Worker] got a message", e);
     if(e.data && e.data.type === "SKIP_WAITING"){
         self.skipWaiting();
     }
@@ -40,22 +41,30 @@ self.addEventListener('activate', (e) => {
     }));
 });
 
-self.addEventListener('fetch', (e) => {
-    e.respondWith((async () => {
-        if(Testing)
-            return fetch(e.request);
-        console.log(`[Service Worker] Fetching requested resource: ${e.request.url}`);
-        const r = await caches.match(e.request);
-        if(e.request.cache != "reload" && r) return r;
-        try{
-            const response = await fetch(e.request);
-            const cache = await caches.open(cacheName);
-            console.log(`[Service Worker] Caching new resource: ${e.request.url}`);
-            cache.put(e.request, response.clone());
-            return response;
-        } catch(err) {
-            if(r) return r;
-            return await fetch(e.request);
-        }
-    })());
-});
+function fetchResource(request, save=true){
+    return fetch(request).then(async response => {
+        if(!save) return response;
+        const cache = await caches.open(cacheName);
+        if(Verbose) console.log(`[Service Worker] Caching new resource: ${request.url}`);
+        cache.put(request, response.clone());
+        return response;
+    }).catch(err => {
+        let init = navigator.onLine ? {status:404, statusText:"not found"} : {status:418, statusText:"offline"};
+        return new Response("", init);
+    });
+}
+
+self.addEventListener("fetch", (e) => {
+    if(e.request.cache == "reload" || Testing){
+        if(Verbose) console.log(`[Service Worker] Fetching requested resource: ${e.request.url}`);
+        return e.respondWith(fetchResource(e.request, false));
+    }
+
+    e.respondWith(caches.match(e.request).then(cachedResponse => {
+        if(Verbose) console.log(`[Service Worker] Loading cached resource: ${e.request.url}`);
+        if(cachedResponse) return cachedResponse;
+        //no cached response stored -> fetch and cache resource
+        if(Verbose) console.log(`[Service Worker] Cached resource not found: ${e.request.url}\nFetching...`);
+        return fetchResource(e.request);
+    }));
+})

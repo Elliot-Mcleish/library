@@ -9,10 +9,15 @@ body{
     display:flex;
     flex-direction: column;
     gap:0.5rem;
+    overflow-y:scroll;
+}
+
+h2{
+    text-align:center;
 }
 
 section{
-    min-width:26rem;
+    min-width:25rem;
     /* max-width:36rem; */
     padding-inline:0.5rem;
     display:flex;
@@ -154,49 +159,43 @@ form.book div.break{
     padding:0.2rem;
 }
 
+form.book .break[plural=true]::after{
+    content:"s";
+}
+
 form.book span:not(.tag){
     display:contents;
 }
 
-#tag-select-button{
+form.book span[hidden]{
+    display:none;
+}
+
+.tag-select-button{
     width:8rem;
     height:1.5rem;
     padding: 0px;
     grid-column: 1 / span 1;
 }
 
-#tag-display{
+.tag-display{
     margin:0px;
     grid-column: 2 / -1;
     margin-bottom:0.5rem;
 }
 
-/* #tag-display .tag{
-    border:none;
-    outline:none;
-    margin:0px;
-    padding:0px;
-    appearance: none;
-} */
-
-#tag-display .tag input{
+.tag-display .tag input{
     display:none;
     user-select: none;
 }
 
-/* #tag-display .tag::before{
-    content: attr(value);
-    display:inline-block;
-    font-size:1rem;
-} */
-
-#tag-display .tag:not(:last-child)::after{
+.tag-display .tag:not(:last-child)::after{
     content: ", ";
     /* display:inline-block; */
     font-size:1rem;
 }
 
-#tag-display:empty::before{
+.tag-display:empty::before{
     color:grey;
     content:"Tags will show up here...";
 }
@@ -206,10 +205,64 @@ form.book span:not(.tag){
     text-align: center;
 }
 
-#tag-input:placeholder-shown + button + button + p .tag{
+.tag-input:placeholder-shown + button + button + p .tag{
     cursor:pointer;
 }
 
 #copies:not(:valid){
     color:red;
+}
+
+#loading-graphic{
+    width:50vmin;
+    height:50vmin;
+    left:calc(50vw - 25vmin);
+    bottom:calc(50vh - 25vmin);
+    position:fixed;
+    align-items: center;
+    justify-content: center;
+    display:flex;
+    opacity:0.5;
+}
+
+#loading-graphic[hidden]{
+    display:none;
+}
+
+#loading-graphic::before{
+    width:50vmin;
+    height:50vmin;
+    border-radius: 100%;
+    border-top: 1rem solid black;
+    border-bottom: 1rem solid black;
+    animation:spin 1s linear 0s infinite;
+    position:absolute;
+    content:" ";
+}
+
+#loading-graphic *{
+    position:relative;
+    right:3px;
+    display:flex;
+}
+
+#loading-graphic *::after{
+    animation:dots 2s linear 0s infinite;
+    content:"...";
+    display:block;
+    position:absolute;
+    left:100%;
+}
+
+@keyframes spin{
+    0%{transform:rotate(0deg);}
+    100%{transform: rotate(360deg);}
+}
+
+@keyframes dots{
+    0%{content:"."}
+    25%{content:".."}
+    50%{content:"..."}
+    75%{content:"...."}
+    100%{content:"."}
 }
