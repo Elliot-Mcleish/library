@@ -48,7 +48,7 @@ if('serviceWorker' in navigator){
     alert("Unable to install Service Worker!");
 }
 
-const API_URL = "http://elliotmcleish.wixsite.com/library/_functions/";
+const API_URL = "https://elliotmcleish.wixsite.com/library/_functions/";
 async function API(fname, searchParams="", options={}){
     let fullUrlString = `${API_URL}${fname}`;
     if(searchParams){

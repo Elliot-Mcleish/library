@@ -2,7 +2,7 @@
 const cacheName = "HLPWA-v-alpha-1.0";
 
 const Testing = self.location.host.split(":")[0] == "localhost";
-const Verbose = Testing;
+const Verbose = !Testing;
 
 const appShellFiles = [
     '/index.html',
