@@ -1,5 +1,5 @@
 
-const cacheName = "HLPWA-v-alpha-1.0";
+const cacheName = "HLPWA-v-alpha-1.1";
 
 const Testing = self.location.host.split(":")[0] == "localhost";
 const Verbose = !Testing;
@@ -27,9 +27,7 @@ self.addEventListener('install', (e) => {
 
 self.addEventListener('message', (e) => {
     if(Verbose) console.log("[Service Worker] got a message", e);
-    if(e.data && e.data.type === "SKIP_WAITING"){
-        self.skipWaiting();
-    }
+    if(e.data && e.data.type === "SKIP_WAITING") return self.skipWaiting();
 });
 
 self.addEventListener('activate', (e) => {
