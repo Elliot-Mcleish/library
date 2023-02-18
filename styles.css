@@ -1,3 +1,10 @@
+
+/*
+
+    Whole Page ---------------------------------------------------------------------------------------------------------------------------------------------
+
+*/
+
 :root{
     font-size:max(0.8rem, min(3.6vw, 1.3rem));
 }
@@ -14,6 +21,53 @@ body{
 
 h2{
     text-align:center;
+}
+
+#options{
+    display:grid;
+    grid-template-columns:repeat(2, 11rem);
+    align-self:center;
+}
+
+#options[hidden]{display:none;}
+
+#options div{
+    grid-column:1/-1;
+}
+
+#options label{
+    justify-self: end;
+}
+
+#PASSWORD{
+    font-family: monospace;
+    font-size:0.7rem;
+    height:2rem;
+    grid-column: 1 / -1;
+}
+
+#QUICK_LOAD{
+    justify-self: start;
+}
+
+#tabs-container{
+    display:flex;
+    flex-direction:row;
+    max-width:36rem;
+    align-self:center;
+    gap:0.5rem;
+}
+
+html:not([isAdmin]) #tabs-container{
+    display:none;
+}
+
+.tab{
+    border:1px solid black;
+    border-bottom:none;
+    padding:0.5rem;
+    cursor:pointer;
+    user-select:none;
 }
 
 section{
@@ -49,6 +103,107 @@ dialog:not([open]){
     display:none;
 }
 
+#online-indicator{
+    background-color:rgb(200,200,200);
+    border-radius:100%;
+    width:20px;
+    height:20px;
+    position:fixed;
+    top:10px;
+    left:10px;
+    box-shadow:0px 0px 16px 0px black;
+    z-index:2;
+}
+
+#loading-graphic{
+    width:50vmin;
+    height:50vmin;
+    left:calc(50vw - 25vmin);
+    bottom:calc(50vh - 25vmin);
+    position:fixed;
+    align-items: center;
+    justify-content: center;
+    display:flex;
+    opacity:0.5;
+}
+
+#loading-graphic[hidden]{
+    display:none;
+}
+
+#loading-graphic::before{
+    width:50vmin;
+    height:50vmin;
+    border-radius: 100%;
+    border-top: 1rem solid black;
+    border-bottom: 1rem solid black;
+    animation:spin 1s linear 0s infinite;
+    position:absolute;
+    content:" ";
+}
+
+#loading-graphic *{
+    position:relative;
+    right:3px;
+    display:flex;
+}
+
+#loading-graphic *::after{
+    animation:dots 2s linear 0s infinite;
+    content:"...";
+    display:block;
+    position:absolute;
+    left:100%;
+}
+
+@keyframes spin{
+    0%{transform:rotate(0deg);}
+    100%{transform: rotate(360deg);}
+}
+
+@keyframes dots{
+    0%{content:"."}
+    25%{content:".."}
+    50%{content:"..."}
+    75%{content:"...."}
+    100%{content:"."}
+}
+
+/*
+
+    Search Page --------------------------------------------------------------------------------------------------------------------------------------------
+
+*/
+
+#search-container{
+    position:relative;
+    overflow:hidden;
+    display:flex;
+    align-items: center;
+}
+
+#search-container:has(:placeholder-shown)::before{
+    content: "🔍";
+    color: rgb(117, 117, 117);
+    position: absolute;
+    font-size: 1rem;
+    filter: grayscale(1) opacity(0.6);
+    left: 0.1rem;
+}
+
+input[type="search"]{
+    font-size:1.5rem;
+    min-width:20rem;
+    width:75vw;
+}
+
+
+/*
+
+    Book Entry List ----------------------------------------------------------------------------------------------------------------------------------------
+
+*/
+
 #tag-list > *{
     background-color:white;
     user-select: none;
@@ -57,15 +212,45 @@ dialog:not([open]){
     border-radius:1rem;
 }
 
+#book-title{
+    margin-block:0.5rem;
+    text-align:center;
+}
+
+#book-title::after{
+    content:'[Untitled]';
+}
+
+#book-title[book-title]::after{
+    content:'"' attr(book-title) '"';
+}
+
 #tag-list .list{
     /* border:1px solid black; */
     display:grid;
     grid-template-columns: repeat(3, 7.5rem);
-    grid-auto-rows:3rem;
+    grid-auto-rows:2rem;
     gap:0.2rem;
     margin-bottom:0.2rem;
     max-height:calc(100vh - 4rem);
     overflow-y:auto;
+}
+
+#tag-list .list:empty{
+    height:5rem;
+    padding-top:1rem;
+}
+
+#tag-list .list:empty::before {
+    content: "Whoops! There's nothing here.";
+    grid-column: 1/-1;
+    text-align: center;
+}
+
+#tag-list .list:empty::after {
+    content: 'Click "Edit..." to select common tags.';
+    grid-column: 1/-1;
+    text-align: center;
 }
 
 input.tag-box{
@@ -79,20 +264,26 @@ input.tag-box::after{
     content:attr(value);
     display:-webkit-box;
     width:6rem;
-    max-height:3rem;
-    border-radius:0.2rem;
-    padding:0.1rem;
-    padding-left:1.3rem;
+    max-height:2rem;
+    padding-left:1.1rem;
     position:absolute;
     overflow:hidden;
     text-overflow: ellipsis;
-    -webkit-line-clamp: 3;
+    -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
-    left:-0.2rem;
     font-size:0.8rem;
 }
 
-input.tag-box:checked:after{
+input.tag-box::before{
+    content:" ";
+    position:absolute;
+    width:7.4rem;
+    height:2rem;
+    border-radius:0.2rem;
+    left:-0.3rem;
+}
+
+input.tag-box:checked::before{
     background-color:rgba(0,0,255,0.2);
 }
 
@@ -191,7 +382,8 @@ form.book span[hidden]{
 
 .tag-display .tag:not(:last-child)::after{
     content: ", ";
-    /* display:inline-block; */
+    display:inline-block;
+    margin-right:0.2rem;
     font-size:1rem;
 }
 
@@ -206,75 +398,41 @@ form.book span[hidden]{
 }
 
 .tag-input:placeholder-shown + button + button + p .tag{
-    cursor:pointer;
+    cursor:alias;
+}
+
+.tag-input:placeholder-shown + button + button + p .tag:hover{
+    color:rgb(0,0,100);
+    text-decoration: underline;
 }
 
 #copies:not(:valid){
     color:red;
 }
 
-#online-indicator{
-    background-color:rgb(200,200,200);
-    border-radius:100%;
-    width:20px;
-    height:20px;
-    position:fixed;
-    top:10px;
-    left:10px;
-    box-shadow:0px 0px 16px 0px black;
-    z-index:2;
+/*
+
+    Password Page ------------------------------------------------------------------------------------------------------------------------------------------
+
+*/
+
+#set-password{
+    width:30rem;
+    margin-bottom: 1rem;
 }
 
-#loading-graphic{
-    width:50vmin;
-    height:50vmin;
-    left:calc(50vw - 25vmin);
-    bottom:calc(50vh - 25vmin);
-    position:fixed;
-    align-items: center;
-    justify-content: center;
-    display:flex;
-    opacity:0.5;
-}
-
-#loading-graphic[hidden]{
-    display:none;
-}
-
-#loading-graphic::before{
-    width:50vmin;
-    height:50vmin;
-    border-radius: 100%;
-    border-top: 1rem solid black;
-    border-bottom: 1rem solid black;
-    animation:spin 1s linear 0s infinite;
-    position:absolute;
-    content:" ";
-}
-
-#loading-graphic *{
+#check-password{
     position:relative;
-    right:3px;
-    display:flex;
 }
 
-#loading-graphic *::after{
-    animation:dots 2s linear 0s infinite;
-    content:"...";
-    display:block;
+#check-password::after{
+    content:attr(status);
     position:absolute;
-    left:100%;
+    left:calc(100% + 1rem);
+    width:max-content;
+    color:red;
 }
 
-@keyframes spin{
-    0%{transform:rotate(0deg);}
-    100%{transform: rotate(360deg);}
-}
-
-@keyframes dots{
-    0%{content:"."}
-    25%{content:".."}
-    50%{content:"..."}
-    75%{content:"...."}
-    100%{content:"."}
+#check-password[disabled]::after{
+    color:grey;
 }

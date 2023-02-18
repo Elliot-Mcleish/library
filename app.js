@@ -1,3 +1,12 @@
+const Testing = window.location.host.split(":")[0] == "localhost";
+
+function setAdminStatus(isAdmin){
+    if(!isAdmin) return document.documentElement.removeAttribute("isAdmin");;
+    document.documentElement.setAttribute("isAdmin", "true");
+}
+
+setAdminStatus(window.localStorage.getItem("password"));
+
 //register service worker
 if('serviceWorker' in navigator){
     function ShowUpdatePrompt(registration){
@@ -66,45 +75,98 @@ async function API(fname, searchParams="", options={}){
     }
 }
 
-// API("authe", {"password":window.localStorage.getItem("password")}, {cache: "reload"}).then(console.log.bind(console)).catch(err => {
+// API("auth", {"password":window.localStorage.getItem("password")}, {cache: "reload"}).then(console.log.bind(console)).catch(err => {
 //     console.error(err);
 // })
 
-var DATABASE = {loaded:false};
-
-function loadDatabase(data){
-    DATABASE = {loaded:false};
-    data.loadPattern.forEach((collectionName, index) => {
-        let collectionData = {};
-        data.results[index].forEach(item => {
-            collectionData[decodeURI(item._id)] = item;
+var DATABASE = new function(){
+    this.initiated = false;
+    this.loaded = false;
+    this.outdated = null;
+    this.version = 0;
+    this.isAdmin = window.localStorage.getItem("password") != undefined;
+    this.date = 0;
+    this.data = {};
+    this.load = function(data){
+        if(!data.loadPattern) throw(new Error("Bad Data"));
+        this.loaded = false;
+        this.data = {};
+        data.loadPattern.forEach((collectionName, index) => {
+            let collectionData = {};
+            data.results[index].forEach(item => {
+                collectionData[decodeURI(item._id)] = item;
+            });
+            this.data[collectionName] = collectionData;
         });
-        DATABASE[collectionName] = collectionData;
-    });
-    DATABASE.date = new Date(data.dbState.date).valueOf();
-    DATABASE.loaded = true;
+        this.isAdmin = data.isAdmin;
+        this.date = new Date(data.dbState.date).valueOf();
+        this.version = Number(data.dbState.version);
+        this.loaded = true;
+    }
+
+    this.get = function(...keys){
+        let result = this.data;
+        for(let i = 0; i < keys.length; ++i){
+            result = result[keys[i]];
+            if(!result) keys[i] = `{${keys[i]}}`;
+            if(i < keys.length-1 && !(result instanceof Object)){
+                keys[i+1] = `[${keys[i+1]}]`;
+                console.warn(`DATABASE.get(): "${keys.join(".")}" Does not exist.`);
+                return null;
+            }
+        }
+        return result;
+    }
+
+    this.init = function(){
+        this.initiated = true;
+
+        try{
+            this.load(JSON.parse(window.localStorage.getItem("database")));
+            console.log("Loaded local database");
+        }catch{
+            console.warn("Failed to load local database!");
+        }
+    
+        if(Testing && window.localStorage.getItem("quick-load") == "true"){
+            console.log("Quick load is on. Skipping outdated check...");
+            return document.dispatchEvent(new Event("database-loaded"));
+        }
+
+        let password = (this.isAdmin && !Testing) ? undefined : window.localStorage.getItem("password");
+        //if already admin -> password = undefined
+        //if not admin, but no password stored -> password = undefined
+        //if not admin, and password stored -> password is sent
+        //if testing -> password is sent
+        API("outdated", {"date":this.date, password}, {cache:"reload"}).then(async answer => {
+            console.log("isOutdated answer: ", answer);
+            this.outdated = answer.outdated;
+            if(!this.outdated && answer.isAdmin == this.isAdmin) return console.log("Local Database is up to date!\n", this.data);
+            console.log("Local Database is outdated!");
+            await API("load", {"password":window.localStorage.getItem("password")}, {cache:"reload"}).then(data => {
+                this.load(data);
+                window.localStorage.setItem("database", JSON.stringify(data));
+                this.outdated = false;
+                console.log("Updated local Database\n", this.data);
+            });
+        }).catch(badResponse => {
+            this.outdated = null;
+            console.log("Cannot tell if database is outdated\n", badResponse);
+        }).finally(() => {
+            document.dispatchEvent(new Event("database-loaded"));
+        });
+    }
 }
 
-try{
-    loadDatabase(JSON.parse(window.localStorage.getItem("database")));
-    console.log("Loaded local database");
-}catch{
-    console.warn("Failed to load local database!\n", window.localStorage.getItem("database"));
+function RESET(){
+    window.localStorage.clear();
+    try{
+        (async function(){
+            let reg = await navigator.serviceWorker.getRegistration();
+            await reg.unregister();
+            window.location.reload(true);
+        })();
+    }catch{
+        window.location.reload(true);
+    }
 }
-
-API("outdated", {"date":DATABASE.date}, {cache:"reload"}).then(answer => {
-    DATABASE.outdated = answer.outdated;
-    if(!DATABASE.outdated) return console.log("Local Database is up to date!\n", DATABASE);
-    console.log("Local Database is outdated!");
-    API("load", {"password":window.localStorage.getItem("wrongpassword")}, {cache:"reload"}).then(data => {
-        loadDatabase(data);
-        window.localStorage.setItem("database", JSON.stringify(data));
-        DATABASE.outdated = false;
-        console.log("Updated local Database\n", DATABASE);
-    });
-}).catch(badResponse => {
-    DATABASE.outdated = null;
-    console.log("Cannot tell if database is outdated\n", badResponse);
-}).finally(() => {
-    document.dispatchEvent(new Event("database-loaded"));
-});

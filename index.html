@@ -12,14 +12,41 @@
     <body>
         <h2>Homeschooler's Library Catalogue</h2>
         <div id="online-indicator"></div>
-        <section hidden>
-            <p>Enter Information about the book:</p>
-            <form class="book">
-                <div id="store-option">
-                    <input type="checkbox" value="false" name="store" id="store" checked>
-                    <label for="store" id="store-lore">For Testing</label>
+        <div id="options" hidden>
+            <div style="height:50px;"><object data="pw.txt"></object></div>
+            <textarea id="PASSWORD" oninput="window.localStorage.setItem('password',this.value)"></textarea>
+            <label for="QUICK_LOAD">Quick Load: </label>
+            <input type="checkbox" id="QUICK_LOAD" oninput="window.localStorage.setItem('quick-load', this.checked)">
+            <script>
+                // document.getElementById("options").hidden = !Testing;
+                const PASSWORD = document.getElementById("PASSWORD");
+                const QUICK_LOAD = document.getElementById("QUICK_LOAD");
+                PASSWORD.value = window.localStorage.getItem("password");
+                QUICK_LOAD.checked = window.localStorage.getItem("quick-load") == "true";
+            </script>
+        </div>
+        <div id="tabs-container" onclick="switchTab(event.target.innerText)"></div>
+        <section class="page" tab-name="Search" id="page-search" hidden>
+            <form class="search">
+                <div id="search-container">
+                    <input type="search" id="search" placeholder="   Search...">
                 </div>
-                <div class="break"></div>
+                <input type="submit" value=">">
+            </form>
+            <script src="page_search.js"></script>
+        </section>
+        <section class="page" tab-name="Enter Books" id="page-bookentry" hidden>
+            <p>Enter Information about the book:</p>
+            <form class="book" autocomplete="off">
+                <div hidden id="store-option">
+                    <input type="checkbox" value="false" name="store" id="store">
+                    <label for="store" id="store-lore">For Testing</label>
+                    <div class="break"></div>
+                </div>
+                <script>
+                    document.getElementById("store-option").hidden = !Testing;
+                    document.getElementById("store").checked = Testing;
+                </script>
                 <label for="contents">Books within book:</label>
                 <input name="contents" type="number" list-id="content-items" id="contents" min="1" max="30" value="1">
                 <p class="break">Book Content</p>
@@ -37,7 +64,10 @@
                         <label for="seriesNumber">Series Number:</label>
                         <input name="seriesNumber" type="number" id="seriesNumber">
                         <label for="tag-input">Tags:</label>
-                        <input type="text" list="auto-tags" id="tag-input" class="tag-input" placeholder="&#x200B;" style="grid-column-end:-2;" oninput="this.nextElementSibling.disabled = !this.value">
+                        <input type="text" list="auto-tags" id="tag-input" class="tag-input" placeholder="&#x200B;" style="grid-column-end:-2;" onfocus="loadAutoTags(this.parentElement.querySelector('p.tag-display'))"
+                            onkeydown="this.setAttribute('eventSource',event.key?'input':'list')"
+                            oninput="this.nextElementSibling.disabled = !this.value;if(this.getAttribute('eventSource') == 'list'){addTagFromInput(this)}"
+                        >
                         <button type="button" onclick="addTagFromInput(this.previousElementSibling)" disabled>Add</button>
                         <!-- <input type="text" list="auto-tags" id="tag-edit" hidden> -->
                         <button onclick="openTagsListDialog(this.parentElement)" type="button" class="tag-select-button">Open Tag List...</button>
@@ -72,340 +102,29 @@
             <div hidden id="book-item-cache"></div>
             <dialog id="tag-list">
                 <div>
+                    <p id="book-title">Edit tags for </p>
                     <div class="list" onclick="updateSaveButton()"></div>
                     <button id="save-tags" onclick="saveTagsFromDialog()" disabled>Save Selected Tags</button>
                     <button id="cancel-tags" onclick="closeTagsListDialog()">Cancel</button>
+                    <button style="float:right" id="edit-common-tags">Edit...</button>
                 </div>
                 <a hidden id="quick-tags-to-content-item-anchor"></a>
             </dialog>
+            <script src="page_bookentry.js"></script>
         </section>
-        <!-- <section>
+        <section class="page" tab-name="Set Password" id="page-password" hidden>
+            <textarea id="set-password"></textarea>
+            <button id="check-password" onclick="checkPassword(document.getElementById('set-password').value)">Check</button>
+        </section>
+        <section class="page" tab-name="Reset" id="page-reset" hidden>
+            <button onclick="if(confirm('Reset Everything?')) RESET()">Reset</button>
+        </section>
+        <section hidden>
             <div style="border:1px solid black; min-width:25rem; width:100%; height:50rem;"></div>
-        </section> -->
+        </section>
         <div id="loading-graphic">
             <span>Loading</span>
         </div>
-        <script>
-            /*const Logs = document.getElementById("logs");
-
-            var FormDataStorage = {};
-
-            let logId = 1;
-            function logBook(bookName, number){
-                const log = document.createElement("div");
-                log.classList.add("log");
-                log.setAttribute("id", `logNo-${logId++}`);
-                const title = document.createElement("p");
-                title.classList.add("title");
-                const status = document.createElement("span");
-                status.classList.add("status");
-                title.textContent = bookName;
-                status.textContent = "Pending...";
-                if(number > 1){
-                    log.classList.add("multiple");
-                    title.setAttribute("number-of-books", number);
-                }
-                log.appendChild(title);
-                log.appendChild(status);
-                log.addEventListener("click", e=>{
-                    let path = e.composedPath();
-                    let pathLength = path.length;
-                    let log = path[path.length - 6];
-                    if(!log.classList.contains('error')) return;
-                    log.classList.remove('error');
-                    let status = log.querySelector(".status");
-                    status.textContent = "Pending...";
-                    submitBook(log);
-                });
-                Logs.appendChild(log);
-                return log;
-            }*/
-
-            const Form = document.querySelector("form");
-            const SubmitButton = document.getElementById("book-submit-button");
-
-            Form.addEventListener("keydown", (e) => {
-                if(e.target.matches("input") && e.key == "Enter"){
-                    if(e.target.id == "tag-input"){
-                        addTagFromInput(e.target);
-                    }else{
-                        if(!e.target.nextElementSibling) return;
-                        e.target.nextElementSibling.focus();
-                    }
-                    e.preventDefault();
-                    return false;
-                }
-            });
-
-            // function submitBook(log){
-            //     let data = FormDataStorage[log.id];
-            //     let status = log.querySelector(".status");
-            //     API("bookdata", data, {method: "POST", cache: "reload"}).then(response=>{
-            //         status.innerText = "Complete!";
-            //         log.classList.add("complete");
-            //     }).catch(err=>{
-            //         status.innerText = err.message;
-            //         log.classList.add("error");
-            //     });
-            // }
-
-            Form.addEventListener("submit", (e) => {
-                e.preventDefault();
-                if(SubmitButton.disabled) return console.log("Hold your horses!");
-                SubmitButton.disabled = true;
-
-                let data = new FormData(Form);
-                data.append("password", window.localStorage.getItem("password"));
-
-                data.delete("tags");
-                let tagsArr = [];
-                Form.querySelectorAll("p.tag-display").forEach(pElem => {
-                    let itemTags = [];
-                    pElem.querySelectorAll("input").forEach(input => itemTags.push(input.value));
-                    tagsArr.push(itemTags.join("^"));
-                });
-                // let tagsArr = data.getAll("tags").join("^").split(/\^\|\^?/);
-                // data.delete("tags");
-                tagsArr.forEach(tagString => data.append("tags", tagString));
-
-                let bookTitle = data.get("bookTitle") || data.get("title");
-                data.delete("bookTitle");
-                while(data.getAll("bookTitle").length < Copies.value) data.append("bookTitle", bookTitle);
-
-                API("bookdata", data, {method: "POST", cache: "reload"}).then(data => {
-                    console.log("Complete!", data);
-                }).catch(badResponse => {
-                    console.error("Error submitting book!", badResponse);
-                }).finally(() => {
-                    SubmitButton.disabled = false;
-                })
-                // let log = logBook(data.get("title"), data.get("copies"));
-                // FormDataStorage[log.id] = data;
-                // submitBook(log);
-            });
-            
-            const TagListDialog = document.getElementById("tag-list");
-            const TagList = TagListDialog.querySelector(".list");
-
-            const QuickTagsAnchor = document.getElementById("quick-tags-to-content-item-anchor");
-
-            const AutoTagList = document.getElementById("auto-tags");
-            const HiddenAutoTagList = document.getElementById("hidden-auto-tags");
-
-            const CollectionTitleInput = document.getElementById("collectionTitleInput");
-
-            const SaveTagsButton = document.getElementById("save-tags");
-
-            const Contents = document.getElementById("contents");
-            const ContentItemCache = document.getElementById("content-item-cache");
-            const ContentItems = document.getElementById("content-items");
-            const ContentItemTemplate = ContentItems.querySelector(".content-item");
-
-            const Copies = document.getElementById("copies");
-            const BookItemCache = document.getElementById("book-item-cache");
-            const BookItems = document.getElementById("book-items");
-            const BookItemTemplate = BookItems.querySelector(".book-item");
-
-            function handleItemNumberChange(e){
-                let input = e.target;
-                input.nextElementSibling.setAttribute("plural", input.value > 1);
-                if(!input.reportValidity() || !input.value) return;
-                let listId = input.getAttribute("list-id");
-                let itemList = document.getElementById(listId);
-                let itemCache = document.getElementById(listId.slice(0,-1).concat("-cache"));
-                let template = itemList.firstElementChild;
-                while(itemList.childElementCount != input.value){
-                    if(itemList.childElementCount < input.value){
-                        let addedItem = itemCache.lastElementChild;
-                        if(!addedItem){
-                            addedItem = template.cloneNode(true);
-                            addedItem.querySelectorAll(".tag").forEach(elem => elem.remove());
-                            addedItem.querySelectorAll("textarea, input:not(.const)").forEach(elem => elem.value = "");
-                        }
-                        itemList.appendChild(addedItem);
-                    }else{
-                        let removedItem = itemList.lastElementChild;
-                        let shouldRemove = true;
-                        let allValues = Array.from(removedItem.querySelectorAll("textarea, input:not(.const)"));
-                        let valueNum = allValues.length;
-                        for(let i = 0; i < valueNum; ++i){
-                            if(!allValues[i].value) continue;
-                            itemCache.appendChild(removedItem);
-                            shouldRemove = false;
-                            break;
-                        }
-                        if(shouldRemove) removedItem.remove();
-                    }
-                }
-            }
-
-            Contents.addEventListener("input", handleItemNumberChange);
-            Contents.addEventListener("input", e => {
-                CollectionTitleInput.hidden = !(e.target.value > 1);
-            })
-            Copies.addEventListener("input", handleItemNumberChange);
-
-            const AllTags = {
-                "Thing 0": true,
-                "Thing 1": true,
-                "Thing 2": true,
-                "Thing 3": true,
-                "Thing 4": true,
-                "Thing 5": true,
-                "Thing 6": true,
-                "Thing 7": true,
-                "Thing 8": true,
-                "Thing 9": true,
-                "Thing 10": true,
-                "Thing 11": true,
-                "Thing 12": true,
-                "Thing 13": true,
-                "Thing 14": true,
-                "Thing 15": true,
-                "Thing 16": true,
-                "Thing 17": true,
-                "Thing 18": true,
-                "Thing 19": true,
-                "poetry":   true,
-                "graded reader":false,
-                "biography":    true,
-                "graphic novel":true,
-                "historical fiction":true,
-                "A surprisingly long tag for no apparrent reason": true,
-                "picture book": true,
-                "curriculum":   true,
-                "curriculumba": true,
-                "curriculus":   true,
-                "curriculuw":   true,
-                "curriculuq":   true,
-                "curriculur":   true,
-                "curriculut":   true,
-                "curriculug":   true,
-                "curriculuh":   true,
-                "curriculuj":   true,
-                "curriculuk":   true,
-                "curriculul":   true,
-                "curriculub":   true,
-                "curriculun":   true,
-                "curriculuz":   true,
-            }
-
-            function editTag(event, contentItem){
-                let tagInput = contentItem.querySelector(".tag-input");
-                if(!event.target.classList.contains("tag") || tagInput.value) return;
-                tagInput.value = event.target.innerText;
-                tagInput.nextElementSibling.disabled = !tagInput.value;
-                tagInput.focus();
-                removeTag(event.target.innerText, contentItem);
-            }
-
-            function updateSaveButton(){
-                SaveTagsButton.disabled = !(TagList.querySelector('.tag-box[was-checked="true"]:not(:checked), .tag-box[was-checked="false"]:checked'));
-            }
-
-            function openTagsListDialog(contentItem){
-                contentItem.appendChild(QuickTagsAnchor);
-                TagList.querySelectorAll(".tag-box").forEach(box => {
-                    box.checked = !(!contentItem.querySelector(`.tag-display [tagname="${encodeURIComponent(box.value)}"]`));
-                    box.setAttribute("was-checked", box.checked);
-                });
-                SaveTagsButton.disabled = true;
-                TagListDialog.show();
-            }
-
-            function closeTagsListDialog(){
-                TagListDialog.appendChild(QuickTagsAnchor);
-                TagListDialog.close();
-            }
-
-            function saveTagsFromDialog(){
-                let contentItem = QuickTagsAnchor.parentElement;
-                TagList.querySelectorAll(".tag-box").forEach(box => {
-                    if(box.checked){
-                        addTag(box.value, contentItem);
-                    }else{
-                        removeTag(box.value, contentItem);
-                    }
-                });
-                closeTagsListDialog();
-            }
-
-            function loadAutoTag(tag){
-                if(document.getElementById(`auto-tag[${encodeURIComponent(tag)}]`)) return console.log("Autocomplete option already exists!");
-                let option = document.createElement("option");
-                option.value = tag;
-                option.id = `auto-tag[${encodeURIComponent(tag)}]`;
-                AutoTagList.appendChild(option);
-            }
-
-            // function hideAutoTag(tag){
-            //     let option = document.getElementById(`auto-tag[${encodeURIComponent(tag)}]`);
-            //     if(!option) return console.log("Autocomplete option does not exist to be hidden!");
-            //     HiddenAutoTagList.appendChild(option);
-            // }
-
-            // function showAutoTag(tag){
-            //     let option = document.getElementById(`auto-tag[${encodeURIComponent(tag)}]`);
-            //     if(!option) return console.log("Autocomplete option does not exist to be shown!");
-            //     AutoTagList.appendChild(option);
-            // }
-
-            function addTagFromInput(inputElem){
-                addTag(inputElem.value, inputElem.parentElement);
-                inputElem.value = "";
-                inputElem.nextElementSibling.disabled = true;
-                inputElem.focus();
-            }
-
-            function addTag(tag, contentItem){
-                let tagDisplay = contentItem.querySelector(".tag-display");
-                if(tagDisplay.querySelector(`[tagname="${encodeURIComponent(tag)}"]`)) return console.log("Already There, Dummy!");
-                let tagElem = document.createElement("span");
-                let input = document.createElement("input");
-                tagElem.classList.add("tag");
-                tagElem.setAttribute("tagname", encodeURIComponent(tag));
-                input.setAttribute("readonly", "true");
-                input.setAttribute("type", "hidden");
-                input.setAttribute("name", "tags");
-                input.value = encodeURIComponent(tag);
-                tagElem.innerText = tag;
-                tagElem.appendChild(input);
-                tagDisplay.appendChild(tagElem);
-                // if(document.getElementById(`auto-tag[${encodeURIComponent(tag)}]`)) return;
-                // console.log("Loading new Tag into autocomplete list...");
-                loadAutoTag(tag);
-                // hideAutoTag(tag);
-            }
-
-            function removeTag(tag, contentItem){
-                let tagElem = contentItem.querySelector(`.tag-display [tagname="${encodeURIComponent(tag)}"]`);
-                if(!tagElem) return;
-                tagElem.remove();
-                // showAutoTag(tag);
-            }
-
-            for(let tag in AllTags){
-                let common = AllTags[tag];
-                loadAutoTag(tag);
-                if(!common) continue;
-                let box = document.createElement("input");
-                box.classList.add("tag-box");
-                box.setAttribute("type", "checkbox");
-                box.setAttribute("value", tag);
-                box.setAttribute("tag", encodeURIComponent(tag));
-                TagList.appendChild(box);
-            }
-
-            document.addEventListener("database-loaded", e => {
-                document.getElementById("loading-graphic").hidden = true;
-                document.querySelector("section").hidden = false;
-                let Indicator = document.getElementById("online-indicator");
-                var indication = (DATABASE.outdated === false) ? {g:255, title:"Local Database is up to date"} : {g:100, title:"Local Database may be out of date"};
-                Indicator.style.backgroundColor = `rgb(100,${indication.g},100)`;
-                Indicator.style.cursor = "help";
-                Indicator.setAttribute("title", indication.title)
-                console.log("Database:", DATABASE);
-            });
-        </script>
+        <script src="page_master.js"></script>
     </body>
 </html>

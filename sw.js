@@ -1,5 +1,5 @@
 
-const cacheName = "HLPWA-v-alpha-1.1";
+const cacheName = "HLPWA-v-alpha-1.3";
 
 const Testing = self.location.host.split(":")[0] == "localhost";
 const Verbose = !Testing;
@@ -7,6 +7,9 @@ const Verbose = !Testing;
 const appShellFiles = [
     '/index.html',
     '/app.js',
+    '/page_master.js',
+    '/page_search.js',
+    '/page_bookentry.js',
     '/styles.css',
     '/favicon.png',
 ];
