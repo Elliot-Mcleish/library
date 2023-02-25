@@ -1,5 +1,5 @@
-const Form = document.querySelector("form.book");
-const SubmitButton = document.getElementById("book-submit-button");
+const Form = document.querySelector("form.data-entry");
+const SubmitButton = document.getElementById("submit-button");
 
 Form.addEventListener("keydown", (e) => {
     if(e.target.matches("input") && e.key == "Enter"){
@@ -22,26 +22,26 @@ Form.addEventListener("submit", (e) => {
     let data = new FormData(Form);
     data.append("password", window.localStorage.getItem("password"));
 
-    data.delete("tags");
-    let tagsArr = [];
-    Form.querySelectorAll("p.tag-display").forEach(pElem => {
-        let itemTags = [];
-        pElem.querySelectorAll("input").forEach(input => itemTags.push(input.value));
-        tagsArr.push(itemTags.join("^"));
-    });
-    tagsArr.forEach(tagString => data.append("tags", tagString));
+    // data.delete("tags");
+    // let tagsArr = [];
+    // Form.querySelectorAll("p.tag-display").forEach(pElem => {
+    //     let itemTags = [];
+    //     pElem.querySelectorAll("input").forEach(input => itemTags.push(input.value));
+    //     tagsArr.push(itemTags.join("^"));
+    // });
+    // tagsArr.forEach(tagString => data.append("tags", tagString));
 
-    let bookTitle = data.get("bookTitle") || data.get("title");
-    data.delete("bookTitle");
-    while(data.getAll("bookTitle").length < Copies.value) data.append("bookTitle", bookTitle);
+    // let itemTitle = data.get("itemTitle") || data.get("title");
+    // data.delete("itemTitle");
+    // while(data.getAll("itemTitle").length < Copies.value) data.append("itemTitle", itemTitle);
 
-    API("bookdata", data, {method: "POST", cache: "reload"}).then(data => {
-        console.log("Complete!", data);
-    }).catch(badResponse => {
-        console.error("Error submitting book!", badResponse);
-    }).finally(() => {
-        SubmitButton.disabled = false;
-    })
+    // API("itemdata", data, {method: "POST", cache: "reload"}).then(data => {
+    //     console.log("Complete!", data);
+    // }).catch(badResponse => {
+    //     console.error("Error submitting data!", badResponse);
+    // }).finally(() => {
+    //     SubmitButton.disabled = false;
+    // })
 });
 
 const TagListDialog = document.getElementById("tag-list");
@@ -58,12 +58,12 @@ const SaveTagsButton = document.getElementById("save-tags");
 
 const Contents = document.getElementById("contents");
 const ContentItemCache = document.getElementById("content-item-cache");
-const ContentItems = document.getElementById("content-items");
+const ContentItems = document.getElementById("contents");
 const ContentItemTemplate = ContentItems.querySelector(".content-item");
 
 const Copies = document.getElementById("copies");
 const BookItemCache = document.getElementById("book-item-cache");
-const BookItems = document.getElementById("book-items");
+const BookItems = document.getElementById("items");
 const BookItemTemplate = BookItems.querySelector(".book-item");
 
 let uniqueId = 1;

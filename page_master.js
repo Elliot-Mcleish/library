@@ -61,5 +61,5 @@ document.addEventListener("database-loaded", e => {
     loadAllTags(DATABASE.get("Tags"));
 });
 
-DATABASE.init();
+// DATABASE.init();
 

@@ -29,15 +29,15 @@
         <section class="page" tab-name="Search" id="page-search" hidden>
             <form class="search">
                 <div id="search-container">
-                    <input type="search" id="search" placeholder="   Search...">
+                    <input type="search" id="search" placeholder="🔍Search...">
                 </div>
                 <input type="submit" value=">">
             </form>
             <script src="page_search.js"></script>
         </section>
-        <section class="page" tab-name="Enter Books" id="page-bookentry" hidden>
-            <p>Enter Information about the book:</p>
-            <form class="book" autocomplete="off">
+        <section class="page" tab-name="Enter Items" id="page-dataentry" hidden>
+            <p>Enter Information about the Item:</p>
+            <form class="data-entry" autocomplete="off">
                 <div hidden id="store-option">
                     <input type="checkbox" value="false" name="store" id="store">
                     <label for="store" id="store-lore">For Testing</label>
@@ -47,10 +47,10 @@
                     document.getElementById("store-option").hidden = !Testing;
                     document.getElementById("store").checked = Testing;
                 </script>
-                <label for="contents">Books within book:</label>
-                <input name="contents" type="number" list-id="content-items" id="contents" min="1" max="30" value="1">
-                <p class="break">Book Content</p>
-                <span id="content-items" class="item-list">
+                <label for="contents">Number of Contents:</label>
+                <input name="contents" type="number" list-id="contents" id="contents" min="1" max="30" value="1">
+                <p class="break">Content</p>
+                <span id="contents" class="item-list">
                     <span class="item content-item">
                         <input type="hidden" id="contentId" name="contentId">
                         <label for="title">Title:</label>
@@ -73,7 +73,7 @@
                         <button onclick="openTagsListDialog(this.parentElement)" type="button" class="tag-select-button">Open Tag List...</button>
                         <p class="tag-display" onclick="editTag(event, this.parentElement)"></p>
                         <label for="description">Description:</label>
-                        <textarea id="description" name="description" placeholder="(refers to the book generally, not to any physical copy)"></textarea>
+                        <textarea id="description" name="description" placeholder="(refers to the content in abstract, not to any physical copy)"></textarea>
                         <div class="break"></div>
                     </span>
                 </span>
@@ -81,28 +81,28 @@
                 <datalist id="hidden-auto-tags"></datalist>
                 <p class="break"></p>
                 <span id="collectionTitleInput" hidden>
-                    <label for="bookTitle">Collection Title:</label>
-                    <input name="bookTitle" id="bookTitle" type="text" placeholder="(Defaults to first content title)">
+                    <label for="itemTitle">Collection Title:</label>
+                    <input name="itemTitle" id="itemTitle" type="text" placeholder="(Defaults to first content title)">
                 </span>
                 <label for="copies">Number of copies:</label>
-                <input name="copies" type="number" list-id="book-items" id="copies" min="1" max="30" value="1">
-                <p class="break">Book Item</p>
-                <span id="book-items" class="item-list">
-                    <span class="item book-item">
+                <input name="copies" type="number" list-id="items" id="copies" min="1" max="30" value="1">
+                <p class="break">Item</p>
+                <span id="items" class="item-list">
+                    <span class="item item">
                         <label for="shelf">Shelf Location:</label>
                         <input name="shelf" type="text" id="shelf">
                         <label for="details">Details:</label>
-                        <textarea id="details" name="details" placeholder="Extra Details, Identifying Marks, etc. (Specific to the unique physical book)"></textarea>
+                        <textarea id="details" name="details" placeholder="Extra Details, Identifying Marks, etc. (Specific to the unique physical item)"></textarea>
                         <div class="break"></div>
                     </span>
                 </span>
-                <input id="book-submit-button" type="submit">
+                <input id="submit-button" type="submit">
             </form>
-            <div hidden id="content-item-cache"></div>
-            <div hidden id="book-item-cache"></div>
+            <div hidden id="content-cache"></div>
+            <div hidden id="item-cache"></div>
             <dialog id="tag-list">
                 <div>
-                    <p id="book-title">Edit tags for </p>
+                    <p id="item-title">Edit tags for </p>
                     <div class="list" onclick="updateSaveButton()"></div>
                     <button id="save-tags" onclick="saveTagsFromDialog()" disabled>Save Selected Tags</button>
                     <button id="cancel-tags" onclick="closeTagsListDialog()">Cancel</button>
@@ -110,7 +110,7 @@
                 </div>
                 <a hidden id="quick-tags-to-content-item-anchor"></a>
             </dialog>
-            <script src="page_bookentry.js"></script>
+            <script src="page_dataentry.js"></script>
         </section>
         <section class="page" tab-name="Set Password" id="page-password" hidden>
             <textarea id="set-password"></textarea>

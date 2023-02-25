@@ -182,13 +182,20 @@ dialog:not([open]){
     align-items: center;
 }
 
-#search-container:has(:placeholder-shown)::before{
+/* #search-container:has(:placeholder-shown)::before{
     content: "🔍";
     color: rgb(117, 117, 117);
     position: absolute;
     font-size: 1rem;
     filter: grayscale(1) opacity(0.6);
     left: 0.1rem;
+} */
+
+#search-container ::placeholder{
+    position:relative;
+    top:1px;
+    color: rgb(0,0,0);
+    filter:grayscale(1) opacity(0.6);
 }
 
 input[type="search"]{
@@ -200,7 +207,7 @@ input[type="search"]{
 
 /*
 
-    Book Entry List ----------------------------------------------------------------------------------------------------------------------------------------
+    Data Entry List ----------------------------------------------------------------------------------------------------------------------------------------
 
 */
 
@@ -212,17 +219,17 @@ input[type="search"]{
     border-radius:1rem;
 }
 
-#book-title{
+#item-title{
     margin-block:0.5rem;
     text-align:center;
 }
 
-#book-title::after{
+#item-title::after{
     content:'[Untitled]';
 }
 
-#book-title[book-title]::after{
-    content:'"' attr(book-title) '"';
+#item-title[item-title]::after{
+    content:'"' attr(item-title) '"';
 }
 
 #tag-list .list{
