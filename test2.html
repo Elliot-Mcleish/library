@@ -7,11 +7,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="html5-qrcode.min.js"></script>
     <style>
+        html, body{
+            margin:0px;
+            padding:0px;
+        }
     </style>
 </head>
 
 <body>
-    <div id="reader" style="width:600px;"></div>
+    <div id="reader" style="width:600px;max-width:100vw;"></div>
     <p id="log"></p>
     <script>
         const Log = document.getElementById("log");
