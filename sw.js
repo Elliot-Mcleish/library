@@ -1,5 +1,5 @@
 
-const cacheName = "HLPWA-v-alpha-1.3";
+const cacheName = "HLPWA-v-alpha-1.31";
 
 const Testing = self.location.host.split(":")[0] == "localhost";
 const Verbose = !Testing;
