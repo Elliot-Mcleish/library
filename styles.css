@@ -294,7 +294,7 @@ input.tag-box:checked::before{
     background-color:rgba(0,0,255,0.2);
 }
 
-form.book{
+form.data-entry{
     position:relative;
     display:grid;
     grid-template-columns: 8.5rem 3rem minmax(10rem, 20.5rem) 4rem [end];
@@ -305,7 +305,7 @@ label{
     user-select: none;
     grid-column: 1 / span 1;
     display:inline-flex;
-    /* align-items: center; */
+    white-space: nowrap;
     padding-block:0.1rem;
 }
 
@@ -339,12 +339,12 @@ textarea{
     font-family:inherit;
 }
 
-form.book .break{
+form.data-entry .break{
     grid-column: 1 / -1;
     min-height:0.6rem;
 }
 
-form.book p.break{
+form.data-entry p.break{
     margin-block:0.5rem;
     padding-top:1rem;
     padding-bottom:0.5rem;
@@ -353,19 +353,19 @@ form.book p.break{
     text-align:center;
 }
 
-form.book div.break{
+form.data-entry div.break{
     padding:0.2rem;
 }
 
-form.book .break[plural=true]::after{
+form.data-entry .break[plural=true]::after{
     content:"s";
 }
 
-form.book span:not(.tag){
+form.data-entry span:not(.tag){
     display:contents;
 }
 
-form.book span[hidden]{
+form.data-entry span[hidden]{
     display:none;
 }
 

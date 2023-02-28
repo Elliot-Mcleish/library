@@ -57,10 +57,19 @@ if('serviceWorker' in navigator){
     alert("Unable to install Service Worker!");
 }
 
+async function getBookData(isbn){
+    let response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`);
+    return await response.json();
+}
+
 const API_URL = "https://elliotmcleish.wixsite.com/library/_functions/api";
 
 async function API(functionName="ping", query={}, options={}){
-    let fullURL = `${API_URL}?functionName=${functionName}&&query=${JSON.stringify(query)}`;
+    let querystring = new URLSearchParams();
+    querystring.append("functionName", functionName);
+    querystring.append("query", encodeURI(JSON.stringify(query)));
+    querystring.append("password", window.localStorage.getItem("password"));
+    let fullURL = `${API_URL}?${querystring.toString()}`;
     console.log(fullURL);
     try{
         let response = await fetch(fullURL, options);

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title></title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="html5-qrcode.min.js"></script>
+    <style>
+    </style>
+</head>
+
+<body>
+    <div id="reader" style="width:600px;"></div>
+    <p id="log"></p>
+    <script>
+        const Log = document.getElementById("log");
+
+        function onScanSuccess(decodedText, decodedResult) {
+            // handle the scanned code as you like, for example:
+            console.log(`Code matched = ${decodedText}`, decodedResult);
+            Log.innerText += `Scan Result: "${decodedText}"`;
+            Log.innerHTML += "<br>";
+        }
+
+        let html5QrcodeScanner = new Html5QrcodeScanner(
+            "reader",
+            { fps: 10, qrbox: {width: 250, height: 250} },
+            /* verbose= */ false);
+        
+        html5QrcodeScanner.render(onScanSuccess);
+    </script>
+</body>
+
+</html>
